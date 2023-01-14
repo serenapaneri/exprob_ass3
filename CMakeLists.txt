@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   std_msgs
   sensor_msgs
+  moveit_ros_planning_interface
 )
 
 ## System dependencies are found with CMake's conventions
