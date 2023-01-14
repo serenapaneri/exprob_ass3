@@ -25,7 +25,7 @@
   <arg name="gazebo_gui" default="true"/>
   <arg name="paused" default="false"/>
   <!-- By default, use the urdf location provided from the package -->
-  <arg name="urdf_path" default="$(find exprob_ass3)/urdf/cluedo_robot.xacro"/>
+  <arg name="urdf_path" default="$(find exprob_ass3)/urdf/cluedo_robot.urdf"/>
 
   <!-- launch the gazebo simulator and spawn the robot -->
   <include file="$(find moveit_exprob_ass3)/launch/gazebo.launch" >
