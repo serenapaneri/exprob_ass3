@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: exprob_ass3
+    relative_path: urdf/cluedo_robot.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/cluedo_robot.srdf
+  CONFIG:
+    author_name: Serena Paneri
+    author_email: serenapaneri2605988@gmail.com
+    generated_timestamp: 1673715640
