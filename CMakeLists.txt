@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   exprob_ass2
   message_generation
+  urdf
+  std_msgs
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions

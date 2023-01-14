@@ -80,7 +80,7 @@ bool oracleService(exprob_ass2::Oracle::Request &req, exprob_ass2::Oracle::Respo
 		return true;
 	}
 
-bool oracleCallback(exp_assignment3::Marker::Request &req, exp_assignment3::Marker::Response &res)
+bool oracleCallback(exprob_ass3::Marker::Request &req, exprob_ass3::Marker::Response &res)
 {
 	res.oracle_hint = oracle_msgs[req.markerId-11];
 	return true;

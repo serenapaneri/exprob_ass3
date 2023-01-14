@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <robot name="cluedo_robot" xmlns:xacro="https://www.ros.org/wiki/xacro" >
 
- <xacro:include filename="$(find exprob_ass2)/urdf/materials.xacro" />
- <xacro:include filename="$(find exprob_ass2)/urdf/cluedo_robot.gazebo" />
+ <xacro:include filename="$(find exprob_ass3)/urdf/materials.xacro" />
+ <xacro:include filename="$(find exprob_ass3)/urdf/cluedo_robot.gazebo" />
 
  <xacro:macro name="cylinder_inertia" params="mass r l"> 
     <inertia ixx="${mass*(3*r*r+l*l)/12}" ixy = "0" ixz = "0"
@@ -129,6 +129,37 @@
     <parent link="base_link"/>
     <child link="laser"/>
   </joint>
+
+  
+   <link name="camera_link1">
+	    <collision>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	    </collision>
+	    <visual>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	      <material name="black">
+		<color rgba="1 0 0 1"/>
+	      </material>
+	    </visual>
+	    <inertial>
+	      <mass value="1e-5" />
+	      <origin xyz="0 0 0" rpy="0 0 0"/>
+	      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	    </inertial> 
+  </link>
+  
+  <joint name="camera_joint1" type="fixed">
+	    <axis xyz="0 1 0" />
+	    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+	    <parent link="laser"/>
+	    <child link="camera_link1"/> 
+	 </joint>
 
 
 <!--arm definition -->
@@ -277,6 +308,37 @@
   	<parent link="arm_link_03"/>
   	<child link="cluedo_link"/>
   </joint>
+
+  
+ <link name="camera_link2">
+	    <collision>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	    </collision>
+	    <visual>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	      <material name="black">
+		<color rgba="1 0 0 1"/>
+	      </material>
+	    </visual>
+	    <inertial>
+	      <mass value="1e-5" />
+	      <origin xyz="0 0 0" rpy="0 0 0"/>
+	      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	    </inertial> 
+  </link>
+  
+  <joint name="camera_joint2" type="fixed">
+	    <axis xyz="0 1 0" />
+	    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+	    <parent link="cluedo_link"/>
+	    <child link="camera_link2"/> 
+	 </joint>
 
 
 <link name="right_grip_link">
