@@ -452,7 +452,7 @@
     </link>
     <joint name="arm_joint_02" type="revolute">
         <axis xyz="1 0 0" />
-        <limit effort="1000.0" lower="-1.8" upper="1.8" velocity="0.2" />
+        <limit effort="1000.0" lower="-2.8" upper="2.8" velocity="0.2" />
         <origin rpy="0 0 0" xyz="0 0 0.5" />
         <parent link="arm_link_01" />
         <child link="arm_link_02" />
@@ -481,7 +481,7 @@
     </link>
     <joint name="arm_joint_03" type="revolute">
         <axis xyz="1 0 0" />
-        <limit effort="1000.0" lower="-1.8" upper="1.8" velocity="0.2" />
+        <limit effort="1000.0" lower="-2.8" upper="2.8" velocity="0.2" />
         <origin rpy="0 0 0" xyz="0 0 0.5" />
         <parent link="arm_link_02" />
         <child link="arm_link_03" />
@@ -517,13 +517,13 @@
     </joint>
     <link name="camera_link2">
         <collision>
-            <origin rpy="0 0 0" xyz="0 0 0.025" />
+            <origin rpy="0 0 -1.57" xyz="0 0 0.025" />
             <geometry>
                 <box size="0.05 0.05 0.05" />
             </geometry>
         </collision>
         <visual>
-            <origin rpy="0 0 0" xyz="0 0 0.025" />
+            <origin rpy="0 0 -1.57" xyz="0 0 0.025" />
             <geometry>
                 <box size="0.05 0.05 0.05" />
             </geometry>
@@ -534,14 +534,14 @@
         
 <inertial>
             <mass value="1e-5" />
-            <origin rpy="0 0 0" xyz="0 0 0" />
+            <origin rpy="0 0 -1.57" xyz="0 0 0" />
             <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
         </inertial>
 
     </link>
     <joint name="camera_joint2" type="fixed">
         <axis xyz="0 1 0" />
-        <origin rpy="0 0 0" xyz="0 0 0.05" />
+        <origin rpy="0 0 1.57" xyz="0 0 0.05" />
         <parent link="cluedo_link" />
         <child link="camera_link2" />
     </joint>
