@@ -9,7 +9,7 @@ int main(int argc, char **argv){
     sleep(2.0);
     
     moveit::planning_interface::MoveGroupInterface group("arm");
-    group.setEndEffectorLink("arm_link_04");
+    group.setEndEffectorLink("cluedo_link");
     group.setPoseReferenceFrame("base_link");
     group.setPlannerId("RRTstar");
     group.setNumPlanningAttempts(10);

@@ -82,7 +82,15 @@ bool oracleService(exprob_ass2::Oracle::Request &req, exprob_ass2::Oracle::Respo
 
 bool oracleCallback(exprob_ass3::Marker::Request &req, exprob_ass3::Marker::Response &res)
 {
-	res.oracle_hint = oracle_msgs[req.markerId-11];
+	if((req.markerId >= 11) && (req.markerId <= 40)){
+	    res.oracle_hint = oracle_msgs[req.markerId-11];
+	}
+	
+	else {
+	    res.oracle_hint.ID = -1;
+	    res.oracle_hint.key = "";
+	    res.oracle_hint.value = "";
+	}
 	return true;
 } 
 
