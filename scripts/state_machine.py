@@ -50,6 +50,7 @@ import smach_ros
 import time
 from armor_msgs.srv import * 
 from armor_msgs.msg import * 
+from exprob_ass3.srv import Command
 from exprob_ass3.srv import Marker
 from exprob_ass2.srv import Oracle
 
@@ -67,8 +68,11 @@ armor_interface = None
 oracle_client = None
 # hint client
 hint_client = None
+# arm pose client
+pose_client = None
 
 consistent = False
+hint_counter = 0
 hints = []
 hypo = []
 url = ''
@@ -348,8 +352,9 @@ class StartGame(smach.State):
         
     def execute(self, userdata):
     
+        global pose_client
         print('The robot is powering on')
-        ## HERE PUT MOVEIT DEFAULT 
+        pose_client('start', 'default') 
         print('Initializing ARMOR')
         time.sleep(1)
         print('Loading the ontology')
@@ -394,13 +399,19 @@ class Motion(smach.State):
         
     def execute(self, userdata):
     
-        global consistent     
+        global consistent, hint_counter    
         if consistent == True:
             # HERE IMPLEMENT MOVE_BASE TO GO (x = 0.0, y = -1.0)
             return 'go_oracle'
         else:
-            # HERE IMPLEMENT MOVE BASE TO ROOMS[-1]
-            rooms.pop()
+            if hint_count < 5:
+                return 'enter_room'
+            else:
+                # HERE IMPLEMENT MOVE BASE TO ROOMS[-1]
+                rooms.pop()
+                # reset the hint counter
+                hint_count = 0
+                return 'enter_room'
 
 
 
@@ -418,6 +429,10 @@ class Room(smach.State):
         
     def execute(self, userdata):
 
+        global hint_counter
+        if hint_counter < 5:
+            pose_client('start', 'low_detection')
+            # HERE IMPLEMENT THE SERVICE TO READ THE MARKERS
         return 'motion'
         
 
@@ -481,25 +496,16 @@ class Oracle(smach.State):
         rospy.wait_for_service('winning_hypothesis')
         
         print('Oracle: "Name your guess"')
-        time.sleep(2)
-        print('{} with the {} in the {}'.format(hypo[0], hypo[1], hypo[2]))
         time.sleep(1)
         # oracle client
-        res = oracle_client(req)
         # if the two IDs coincides
-        if res.ID == True:
-            print('Yes, you guessed right!')
-            save()
-            return 'game_finished'
+        print('Yes, you guessed right!')
+        save()
+        return 'game_finished'
         # otherwise if they are not the same   
-        elif res.check == False:
-            print('No you are wrong, maybe next time you will have better luck')
-            comm_client('start')
-            # emtpty the list
-            hint_count = 0
-            hypo.clear()
-            time.sleep(5)
-            return 'motion' 
+
+        print('No you are wrong, maybe next time you will have better luck')
+        return 'motion' 
         
 
 ##
@@ -511,7 +517,7 @@ class Oracle(smach.State):
 # as well as the hint subscriber.
 def main():
 
-    global armor_interface, oracle_client, hint_client
+    global armor_interface, oracle_client, hint_client, pose_client
     rospy.init_node('state_machine')
     sm = smach.StateMachine(outcomes=['game_finished'])
     
@@ -524,6 +530,8 @@ def main():
     oracle_client = rospy.ServiceProxy('/oracle_solution', Oracle)
     # command client
     hint_client = rospy.ServiceProxy('/oracle_hint', Marker)
+    # arm pose client
+    pose_client = rospy.ServiceProxy('arm_pose', Command)
 
 
     with sm:

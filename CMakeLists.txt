@@ -63,6 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
    FILES
    Marker.srv
+   Command.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -141,6 +142,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(final_oracle src/simulation.cpp)
  add_executable(move_arm src/move_arm.cpp)
+ add_executable(move_arm2 src/move_arm2.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,6 +154,7 @@ include_directories(
 ## same as for the library above
  add_dependencies(final_oracle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
  add_dependencies(move_arm ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ add_dependencies(move_arm2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(final_oracle
@@ -159,6 +162,10 @@ include_directories(
  )
  
  target_link_libraries(move_arm
+   ${catkin_LIBRARIES}
+ )
+ 
+ target_link_libraries(move_arm2
    ${catkin_LIBRARIES}
  )
 
