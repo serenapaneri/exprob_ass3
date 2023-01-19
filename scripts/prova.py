@@ -12,8 +12,14 @@ def main():
 
     rospy.wait_for_service('arm_pose')    
     pose_client = rospy.ServiceProxy('arm_pose', Command)
+    
+    print('ora parte questo')
+    
+    pose_client('default')
+    
+    print('ora dovrebbe partire l altro')
 
-    pose_client('start', 'low_detection')
+    pose_client('low_detection')
     
     rospy.spin()
     

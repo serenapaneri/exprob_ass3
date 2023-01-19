@@ -72,7 +72,7 @@ hint_client = None
 pose_client = None
 
 consistent = False
-hint_counter = 0
+complete = True
 hints = []
 hypo = []
 url = ''
@@ -354,7 +354,7 @@ class StartGame(smach.State):
     
         global pose_client
         print('The robot is powering on')
-        pose_client('start', 'default') 
+        pose_client('default') 
         print('Initializing ARMOR')
         time.sleep(1)
         print('Loading the ontology')
@@ -399,19 +399,14 @@ class Motion(smach.State):
         
     def execute(self, userdata):
     
-        global consistent, hint_counter    
+        global consistent   
         if consistent == True:
             # HERE IMPLEMENT MOVE_BASE TO GO (x = 0.0, y = -1.0)
             return 'go_oracle'
         else:
-            if hint_count < 5:
-                return 'enter_room'
-            else:
-                # HERE IMPLEMENT MOVE BASE TO ROOMS[-1]
-                rooms.pop()
-                # reset the hint counter
-                hint_count = 0
-                return 'enter_room'
+            # HERE IMPLEMENT MOVE BASE TO ROOMS[-1]
+            rooms.pop()
+            return 'enter_room'
 
 
 
@@ -425,23 +420,46 @@ class Room(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
-                             outcomes=['motion, consistency'])
+                             outcomes=['motion', 'consistency'])
         
     def execute(self, userdata):
 
-        global hint_counter
-        if hint_counter < 5:
-            pose_client('start', 'low_detection')
-            # HERE IMPLEMENT THE SERVICE TO READ THE MARKERS
-        return 'motion'
+        global hints
+        pose_client('low_detection')
+        # MAKE THE ROBOT ROTATE SETTING AN ANGULAR VELOCITY
+        # HERE IMPLEMENT THE SERVICE TO READ THE MARKERS
+        upload_hint(ID_, key_, value_)
+        pose_client('default')
         
+        # check the completeness
+        url = '<http://www.emarolab.it/cluedo-ontology#Hypothesis{}>'.format(ID)
+        
+        print('Checking if it is complete ..')
+        iscomplete = complete()
+        time.sleep(1)
+        # if the list of queried object of the class COMPLETED is empty
+        if len(iscomplete.queried_objects) == 0:
+            print('The hypothesis{} is uncomplete'.format(ID))
+            time.sleep(1)
+            return 'motion'
+        # if the list of queried object of the class COMPLETED is not empty
+        elif len(iscomplete.queried_objects) != 0:
+            # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
+            if url not in iscomplete.queried_objects:
+                print('The hypothesis{} is uncomplete'.format(ID))
+                time.sleep(1)
+                return 'motion'
+            elif url in iscomplete.queried_objects:
+                print('The hypothesis is complete')
+                time.sleep(1)
+                return 'consistency'        
 
         
 class Consistency(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
-                             outcomes=['motion, enter_room'])
+                             outcomes=['motion'])
         
     def execute(self, userdata):
     
@@ -453,16 +471,14 @@ class Consistency(smach.State):
             if url in isinconsistent.queried_objects:
                 print('The hypothesis is inconsistent')
                 consistent = False
-                return 'enter_room'
             elif url not in isinconsistent.queried_objects:
                 print('The hypothesis is complete and consistent')
                 print('The robot is ready to go to the oracle')
                 consistent = True
-                return 'motion'
         elif len(isinconsistent.queried_objects) == 0:
             print('The hypothesis is complete and consistent')
             consistent = True
-            return 'motion'
+        return 'motion'
             
 
 ##
@@ -488,7 +504,7 @@ class Oracle(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client, comm_client, hints, hypo, attempt, hint_count
+        global oracle_client, comm_client, hints, hypo, attempt
         print('The robot is inside the oracle rooom')
         time.sleep(3)
         
@@ -544,8 +560,7 @@ def main():
                                transitions={'motion':'Motion',
                                             'consistency': 'Consistency'})
         smach.StateMachine.add('Consistency', Room(), 
-                               transitions={'motion':'Motion',
-                                            'enter_room': 'Room'})
+                               transitions={'motion':'Motion'})
         smach.StateMachine.add('Oracle', Oracle(), 
                                transitions={'motion':'Motion', 
                                             'game_finished':'game_finished'})
