@@ -41,6 +41,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <exprob_ass3/ID.h>
 
 class ArucoMarkerPublisher
 {
@@ -61,6 +62,7 @@ private:
 
   image_transport::Publisher image_pub_;
   image_transport::Publisher debug_pub_;
+  ros::Publisher ID_pub_;
 
   cv::Mat inImage_;
   
@@ -71,6 +73,7 @@ public:
     image_sub_ = it_.subscribe("/image", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
+    ID_pub_ = nh_.advertise<exprob_ass3::ID>("ID", 1000);
     
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -83,7 +86,6 @@ public:
 
     ros::Time curr_stamp = msg->header.stamp;
     cv_bridge::CvImagePtr cv_ptr;
-    
     try
     {
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -94,11 +96,14 @@ public:
 
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
-
+		exprob_ass3::ID msg;
 		std::cout << "The id of the detected marker detected is: ";
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
           std::cout << markers_.at(i).id << " ";
+          // publish the ID on a rostopic
+          msg.current_id = markers_.at(i).id;
+          ID_pub_.publish(msg);
         }
         std::cout << std::endl;
 
