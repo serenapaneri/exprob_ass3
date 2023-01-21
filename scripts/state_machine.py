@@ -51,8 +51,9 @@ import time
 from armor_msgs.srv import * 
 from armor_msgs.msg import * 
 from exprob_ass3.srv import Command
-from exprob_ass3.srv import Marker
+from exprob_ass3.srv import Pose
 from exprob_ass2.srv import Oracle
+from exprob_ass2.srv import RoomID
 
 # lists of the individuals of the cluedo game
 people = ["missScarlett", "colonelMustard", "mrsWhite", "mrGreen", "mrsPeacock", "profPlum"]
@@ -66,15 +67,16 @@ rooms = [[-4, -3], [-4, 2], [-4, 7], [5, -7], [5, -3], [5, 1]]
 armor_interface = None
 # oracle client
 oracle_client = None
-# hint client
-hint_client = None
 # arm pose client
 pose_client = None
+# command client
+comm_client = None
+# RoomID client
+roomID_client = None
 
 consistent = False
-complete = True
-hints = []
-hypo = []
+complete = False
+
 url = ''
 
 
@@ -184,24 +186,6 @@ def reasoner():
 
 
 ##
-# \brief It is the apply command of armor.
-# \param: None
-# \return: None
-#
-# This function apply the changes done to the ontology.  
-def apply_():
-
-    req = ArmorDirectiveReq()
-    req.client_name = 'state_machine'
-    req.reference_name = 'cluedontology'
-    req.command = 'APPLY'
-    req.primary_command_spec = ''
-    req.secondary_command_spec = ''
-    msg = armor_interface(req)
-    res = msg.armor_response
-
-
-##
 # \brief It is the query command to retrieve an individual from a class.
 # \param: None
 # \return: res
@@ -260,81 +244,8 @@ def save():
     res = msg.armor_response
     print('The new ontology has been saved under the name final_ontology_inferred.owl')
 
-
-##
-# \brief This function search an element in a list.
-# \param: list_, element
-# \return: True, False
-#
-# This functions checks if a specific element is present (True) or not (False) in a list.     
-def search(list_, element):
-    """
-      This function check if an element is present or not into a list
-    """
-    for i in range(len(list_)):
-        if list_[i] == element:
-            return True
-    return False
-
-
-##
-# \brief This function search an element in a list.
-# \param: element
-# \return: hypo
-#
-# This function is used to store the elements found into a list in order to have them sorted,
-# since the hints recieved are not.      
-def classes(element):
-
-     global people, weapons, places, hypo
-     if search(people, element) == True:
-         hypo.insert(0, element)
-     elif search(weapons, element) == True:
-         hypo.insert(1, element)
-     elif search(places, element) == True:
-         hypo.insert(2, element)
-     return hypo
     
 
-##
-# \brief Function to upload the hints recieved in the cluedo_ontology.
-# \param: ID_, key_, value_
-# \return: None
-#
-# This function is used to upload every hints recieved from the environment in the cluedo_ontology.    
-def upload_hint(ID_, key_, value_):
-
-    req = ArmorDirectiveReq()
-    req.client_name = 'state_machine'
-    req.reference_name = 'cluedontology'
-
-    if key_ == 'who':  
-        req.command = 'ADD'
-        req.primary_command_spec = 'OBJECTPROP'
-        req.secondary_command_spec = 'IND'
-        req.args = ['who','Hypothesis' + str(ID_), value_]
-        msg = armor_interface(req)
-        res = msg.armor_response 
-    
-    elif key_ == 'what':
-        req.command = 'ADD'
-        req.primary_command_spec = 'OBJECTPROP'
-        req.secondary_command_spec = 'IND'
-        req.args = ['what','Hypothesis' + str(ID_), value_]
-        msg = armor_interface(req)
-        res = armor_interface(req)
-    
-    elif key_ == 'where':
-        req.command = 'ADD'
-        req.primary_command_spec = 'OBJECTPROP'
-        req.secondary_command_spec = 'IND'
-        req.args = ['where','Hypothesis' + str(ID_), value_]
-        msg = armor_interface(req)
-        res = msg.armor_response 
-    
-    apply_()
-    reasoner()
-    print("The hint has been uploaded")
 
 
 ##
@@ -366,8 +277,8 @@ class StartGame(smach.State):
         time.sleep(1)
         print('Disjoint the individuals of all classes')
         disjoint_individuals()
-        reason()
         time.sleep(1)
+        reason()
         # randomize the rooms order
         random.shuffle(rooms)
         
@@ -424,35 +335,38 @@ class Room(smach.State):
         
     def execute(self, userdata):
 
-        global hints
+        global hints, comm_client, roomID_client
         pose_client('low_detection')
+        comm_client('start')
         # MAKE THE ROBOT ROTATE SETTING AN ANGULAR VELOCITY
-        # HERE IMPLEMENT THE SERVICE TO READ THE MARKERS
-        upload_hint(ID_, key_, value_)
+        comm_client('stop')
         pose_client('default')
         
-        # check the completeness
-        url = '<http://www.emarolab.it/cluedo-ontology#Hypothesis{}>'.format(ID)
+        res = roomID_client()
+        room_IDs = res.roomid
         
-        print('Checking if it is complete ..')
-        iscomplete = complete()
-        time.sleep(1)
-        # if the list of queried object of the class COMPLETED is empty
-        if len(iscomplete.queried_objects) == 0:
-            print('The hypothesis{} is uncomplete'.format(ID))
+        # check the completeness
+        print('Checking if there is one complete hypothesis')
+        for item in room_IDs:
+            url = '<http://www.emarolab.it/cluedo-ontology#Hypothesis{}>'.format(item)
+        
+            iscomplete = complete()
             time.sleep(1)
-            return 'motion'
-        # if the list of queried object of the class COMPLETED is not empty
-        elif len(iscomplete.queried_objects) != 0:
-            # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
-            if url not in iscomplete.queried_objects:
-                print('The hypothesis{} is uncomplete'.format(ID))
+            # if the list of queried object of the class COMPLETED is empty
+            if len(iscomplete.queried_objects) == 0:
+                print('The hypothesis{} is uncomplete'.format(item))
                 time.sleep(1)
-                return 'motion'
-            elif url in iscomplete.queried_objects:
-                print('The hypothesis is complete')
-                time.sleep(1)
-                return 'consistency'        
+            # if the list of queried object of the class COMPLETED is not empty
+            elif len(iscomplete.queried_objects) != 0:
+                # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
+                if url not in iscomplete.queried_objects:
+                    print('The hypothesis{} is uncomplete'.format(ID))
+                    time.sleep(1)
+                    return 'motion'
+                elif url in iscomplete.queried_objects:
+                    print('The hypothesis is complete')
+                    time.sleep(1)
+                    return 'consistency'        
 
         
 class Consistency(smach.State):
@@ -533,7 +447,7 @@ class Oracle(smach.State):
 # as well as the hint subscriber.
 def main():
 
-    global armor_interface, oracle_client, hint_client, pose_client
+    global armor_interface, oracle_client, pose_client, roomID_client, comm_client
     rospy.init_node('state_machine')
     sm = smach.StateMachine(outcomes=['game_finished'])
     
@@ -544,10 +458,12 @@ def main():
     armor_interface = rospy.ServiceProxy('armor_interface_srv', ArmorDirective)
     # oracle client
     oracle_client = rospy.ServiceProxy('/oracle_solution', Oracle)
-    # command client
-    hint_client = rospy.ServiceProxy('/oracle_hint', Marker)
+    # comm client
+    comm_client = rospy.ServiceProxy('comm', Command)
     # arm pose client
-    pose_client = rospy.ServiceProxy('arm_pose', Command)
+    pose_client = rospy.ServiceProxy('arm_pose', Pose)
+    # RoomID client
+    roomID_client = rospy.ServiceProxy('roomID', RoomID)
 
 
     with sm:
