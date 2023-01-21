@@ -52,8 +52,8 @@ from armor_msgs.srv import *
 from armor_msgs.msg import * 
 from exprob_ass3.srv import Command
 from exprob_ass3.srv import Pose
+from exprob_ass3.srv import RoomID
 from exprob_ass2.srv import Oracle
-from exprob_ass2.srv import RoomID
 
 # lists of the individuals of the cluedo game
 people = ["missScarlett", "colonelMustard", "mrsWhite", "mrGreen", "mrsPeacock", "profPlum"]
@@ -75,8 +75,7 @@ comm_client = None
 roomID_client = None
 
 consistent = False
-complete = False
-
+hypotheses = []
 url = ''
 
 
@@ -226,6 +225,43 @@ def inconsistent():
 
 
 ##
+# \brief Function that retrieves the object properties of an individual from the cluedo_ontology.
+# \param: prop_name, ind_name
+# \return: res
+#
+# This function retrives the object property of an individual from the cluedo_ontology. The ind_name stands for
+# the name of the individuals whose objects propetries (prop_name) you want collect. 
+def retrieve_hypo(prop_name, ind_name):
+
+    req = ArmorDirectiveReq()
+    req.client_name = 'check_hypothesis'
+    req.reference_name = 'cluedontology'
+    req.command = 'QUERY'
+    req.primary_command_spec = 'OBJECTPROP'
+    req.secondary_command_spec = 'IND'
+    req.args = [prop_name, ind_name]
+    msg = armor_interface(req)
+    res = msg.armor_response
+    return res
+
+
+##
+# \brief Function that "cleans" the url recieved by the cluedo ontology.
+# \param: obj_query
+# \return: res
+#
+# This function takes the string that is written as an url and remove that parl only leaving a part of
+# the string that is the string of interest.    
+def find_string(obj_query):
+
+    url_ind = '<http://www.emarolab.it/cluedo-ontology#'
+    obj_query = obj_query.replace(url_ind, '')
+    obj_query = obj_query.replace('>', '')
+    return obj_query
+
+
+
+##
 # \brief It saves the changes on a new ontology file.
 # \param: None
 # \return: None
@@ -245,7 +281,20 @@ def save():
     print('The new ontology has been saved under the name final_ontology_inferred.owl')
 
     
-
+##
+# \brief This function search an element in a list.
+# \param: list_, element
+# \return: True, False
+#
+# This functions checks if a specific element is present (True) or not (False) in a list.     
+def search(list_, element):
+    """
+      This function check if an element is present or not into a list
+    """
+    for i in range(len(list_)):
+        if list_[i] == element:
+            return True
+    return False
 
 
 ##
@@ -331,17 +380,29 @@ class Room(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
-                             outcomes=['motion', 'consistency'])
+                             outcomes=['complete'])
         
     def execute(self, userdata):
 
-        global hints, comm_client, roomID_client
+        global comm_client, pose_client
         pose_client('low_detection')
         comm_client('start')
         # MAKE THE ROBOT ROTATE SETTING AN ANGULAR VELOCITY
         comm_client('stop')
         pose_client('default')
         
+        
+        
+        
+class Complete(smach.State):
+
+    def __init__(self):
+        smach.State.__init__(self, 
+                             outcomes=['motion', 'consistency'])
+        
+    def execute(self, userdata):
+
+        global roomID_client, url, hypotheses
         res = roomID_client()
         room_IDs = res.roomid
         
@@ -357,16 +418,25 @@ class Room(smach.State):
                 print('The hypothesis{} is uncomplete'.format(item))
                 time.sleep(1)
             # if the list of queried object of the class COMPLETED is not empty
-            elif len(iscomplete.queried_objects) != 0:
+            elif len(iscomplete.queried_objects) != 0:       
                 # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
                 if url not in iscomplete.queried_objects:
-                    print('The hypothesis{} is uncomplete'.format(ID))
+                    print('The hypothesis{} is uncomplete'.format(item))
                     time.sleep(1)
-                    return 'motion'
                 elif url in iscomplete.queried_objects:
-                    print('The hypothesis is complete')
+                    print('The hypothesis{} is complete'.format(item))
                     time.sleep(1)
-                    return 'consistency'        
+                    hypo = 'Hypothesis' + str(item)
+                    check = search(hypotheses, hypo)
+                    if check:
+                        print('Already checked')
+                    else:
+                        hypotheses.append('Hypothesis' + str(item))
+        
+        if hypotheses:
+            return 'consistency'
+        else:
+            return 'motion'        
 
         
 class Consistency(smach.State):
@@ -377,7 +447,7 @@ class Consistency(smach.State):
         
     def execute(self, userdata):
     
-        global consistent
+        global consistent, hypotheses
         print('Checking if it is consistent ..')
         isinconsistent = inconsistent()
         if len(isinconsistent.queried_objects) != 0:
@@ -418,24 +488,28 @@ class Oracle(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client, comm_client, hints, hypo, attempt
+        global oracle_client
+        
         print('The robot is inside the oracle rooom')
         time.sleep(3)
         
         # waiting for the service that gives the ID of the winning hypothesis
-        rospy.wait_for_service('winning_hypothesis')
+        rospy.wait_for_service('/oracle_solution')
         
         print('Oracle: "Name your guess"')
         time.sleep(1)
         # oracle client
+        res = oracle_client()
+        winning_ID = res.ID
         # if the two IDs coincides
-        print('Yes, you guessed right!')
-        save()
-        return 'game_finished'
+        if current_ID == winning_ID
+            print('Yes, you guessed right!')
+            save()
+            return 'game_finished'
         # otherwise if they are not the same   
-
-        print('No you are wrong, maybe next time you will have better luck')
-        return 'motion' 
+        else:
+            print('No you are wrong, maybe next time you will have better luck')
+            return 'motion' 
         
 
 ##
@@ -473,6 +547,8 @@ def main():
                                transitions={'enter_room':'Room', 
                                             'go_oracle':'Oracle'})
         smach.StateMachine.add('Room', Consistency(), 
+                               transitions={'complete':'Complete'})
+        smach.StateMachine.add('Complete', Consistency(), 
                                transitions={'motion':'Motion',
                                             'consistency': 'Consistency'})
         smach.StateMachine.add('Consistency', Room(), 

@@ -14,6 +14,8 @@ hint_client = None
 comm_srv = None
 # ID subscriber
 ID_sub_ = None
+# RoomID service
+roomid_srv = None
 
 start = False
 IDs = [0]
