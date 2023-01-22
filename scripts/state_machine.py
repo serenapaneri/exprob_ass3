@@ -54,6 +54,7 @@ from exprob_ass3.srv import Command
 from exprob_ass3.srv import Pose
 from exprob_ass3.srv import RoomID
 from exprob_ass2.srv import Oracle
+from geometry_msgs.msg import Twist
 
 # lists of the individuals of the cluedo game
 people = ["missScarlett", "colonelMustard", "mrsWhite", "mrGreen", "mrsPeacock", "profPlum"]
@@ -73,6 +74,8 @@ pose_client = None
 comm_client = None
 # RoomID client
 roomID_client = None
+# cmd_vel publisher
+vel_pub = None
 
 consistent = False
 hypotheses = []
@@ -312,21 +315,27 @@ class StartGame(smach.State):
         
     def execute(self, userdata):
     
-        global pose_client
+        global pose_client, rooms
         print('The robot is powering on')
+        # makes the robot assuming the default position
         pose_client('default') 
         print('Initializing ARMOR')
         time.sleep(1)
         print('Loading the ontology')
+        # loading the ontology
         load()
         time.sleep(1)
         print('Uploading the TBox')
+        # uploading all the individuals of the lists
         tbox()
+        # reasoner
         reason()
         time.sleep(1)
         print('Disjoint the individuals of all classes')
+        # disjoint the individuals of all the classes
         disjoint_individuals()
         time.sleep(1)
+        # reasoners
         reason()
         # randomize the rooms order
         random.shuffle(rooms)
@@ -359,8 +368,9 @@ class Motion(smach.State):
         
     def execute(self, userdata):
     
-        global consistent   
+        global consistent, rooms
         if consistent == True:
+            # if there is at least one consistent hypothesis the robot goes to the oracle
             # HERE IMPLEMENT MOVE_BASE TO GO (x = 0.0, y = -1.0)
             return 'go_oracle'
         else:
@@ -384,12 +394,29 @@ class Room(smach.State):
         
     def execute(self, userdata):
 
-        global comm_client, pose_client
+        global comm_client, pose_client, vel_pub
+        # makes the robot assuming the low_detection position
         pose_client('low_detection')
+        # start detecting hints
         comm_client('start')
-        # MAKE THE ROBOT ROTATE SETTING AN ANGULAR VELOCITY
+        
+        # making the robot rotates 
+        velocity = Twist()
+        # setting the angular velocity
+        velocity.angular.z = 0.3
+        # publishing on cmd_vel 
+        vel_pub.publish(velocity)
+        time.sleep(60)
+        # stops the robot  
+        velocity.angular.z = 0.0
+        # publishing on cmd_vel 
+        vel_pub.publish(velocity)
+        
+        # stop detecting hints
         comm_client('stop')
+        # makes the robot assuming the default position
         pose_client('default')
+        return 'complete'
         
         
         
@@ -488,7 +515,7 @@ class Oracle(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client
+        global oracle_client, consistent
         
         print('The robot is inside the oracle rooom')
         time.sleep(3)
@@ -509,6 +536,7 @@ class Oracle(smach.State):
         # otherwise if they are not the same   
         else:
             print('No you are wrong, maybe next time you will have better luck')
+            consistent = False
             return 'motion' 
         
 
@@ -521,12 +549,11 @@ class Oracle(smach.State):
 # as well as the hint subscriber.
 def main():
 
-    global armor_interface, oracle_client, pose_client, roomID_client, comm_client
+    global armor_interface, oracle_client, pose_client, roomID_client, comm_client, vel_pub
     rospy.init_node('state_machine')
     sm = smach.StateMachine(outcomes=['game_finished'])
     
     rospy.wait_for_service('armor_interface_srv')
-    print('Waiting for the armor service')
     
     # armor client
     armor_interface = rospy.ServiceProxy('armor_interface_srv', ArmorDirective)
@@ -538,21 +565,28 @@ def main():
     pose_client = rospy.ServiceProxy('arm_pose', Pose)
     # RoomID client
     roomID_client = rospy.ServiceProxy('roomID', RoomID)
+    # cmd_vel publisher
+    vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
 
 
     with sm:
         smach.StateMachine.add('StartGame', StartGame(), 
                                transitions={'motion': 'Motion'})
+                               
         smach.StateMachine.add('Motion', Motion(), 
                                transitions={'enter_room':'Room', 
                                             'go_oracle':'Oracle'})
-        smach.StateMachine.add('Room', Consistency(), 
+                                            
+        smach.StateMachine.add('Room', Room(), 
                                transitions={'complete':'Complete'})
-        smach.StateMachine.add('Complete', Consistency(), 
+                               
+        smach.StateMachine.add('Complete', Complete(), 
                                transitions={'motion':'Motion',
                                             'consistency': 'Consistency'})
-        smach.StateMachine.add('Consistency', Room(), 
+                                            
+        smach.StateMachine.add('Consistency', Consistency(), 
                                transitions={'motion':'Motion'})
+                               
         smach.StateMachine.add('Oracle', Oracle(), 
                                transitions={'motion':'Motion', 
                                             'game_finished':'game_finished'})
