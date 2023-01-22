@@ -39,7 +39,7 @@
 #             time it is in a new room. 
 #     - Oralce: in this final state the robot asks to the oracle if the complete and 
 #               consistent hypothesis that it has found is the correct one. If it is then
-#               the game is finished, otherwise the robot restarts the process searching for+
+#               the game is finished, otherwise the robot restarts the process searching for
 #               new hints.
 
 
@@ -79,7 +79,13 @@ vel_pub = None
 
 consistent = False
 hypotheses = []
+hypo_check = []
+complete_hypotheses = []
+consistent_hypotheses = []
+inconsistent_hypotheses = []
 url = ''
+elements = 0
+last = 0
 
 
 ##
@@ -102,7 +108,7 @@ def load():
 
 
 ##
-# \brief The load function loads the cluedo_ontology.
+# \brief Function to upload all the individuals.
 # \param: None
 # \return: None
 #
@@ -263,7 +269,6 @@ def find_string(obj_query):
     return obj_query
 
 
-
 ##
 # \brief It saves the changes on a new ontology file.
 # \param: None
@@ -283,21 +288,36 @@ def save():
     res = msg.armor_response
     print('The new ontology has been saved under the name final_ontology_inferred.owl')
 
-    
+
 ##
-# \brief This function search an element in a list.
-# \param: list_, element
+# \brief Function that checks if elements of list2 exist in list1.
+# \param: list1, list2
 # \return: True, False
 #
-# This functions checks if a specific element is present (True) or not (False) in a list.     
-def search(list_, element):
-    """
-      This function check if an element is present or not into a list
-    """
-    for i in range(len(list_)):
-        if list_[i] == element:
-            return True
-    return False
+# This function is used to check if the elements in the list2 are present or not in the list1.
+def search_list(list1, list2):
+
+    result = any(item in list1 for item in list2)
+    if result:
+        return True
+    else:
+        return False
+
+
+##
+# \brief Function that returns the indixes in a list.
+# \param: list1, list2
+# \return: index, []
+#
+# This function is used to search the elements of a list2 in a list1 and return their indexes.  
+def list_index(list1, list2):
+
+    check = search_list(list1, list2)
+    if check == True:
+        index = [i for i,item in enumerate(list1) if item in list2]
+        return index
+    else:
+        return []
 
 
 ##
@@ -349,17 +369,14 @@ class StartGame(smach.State):
 # \param: None
 # \return: None
 #
-# This class should simulate the movement of the robot between the various rooms of the cluedo game.
-# If the hints percieved are less than the expected number given by the subscriber, then the 
-# robot should keep going searching hints in other rooms.
-# If, instead, the number of hints collected is the right one the the class should check if the 
-# hypothesis formed with those hints is complete and consistent.
-# If it's not the robot should restart searching for collecting other hints, instead, if the 
-# hypothesis is complete and consistent the robot can go to the oracle room trying its guessing.
-# There are three outcomes:
+# This class should execute the movement of the robot between the various rooms of the cluedo game.
+# If there are no new complete and consistent hypotheses, then the robot should keep going searching
+# new hints in other rooms.
+# If, instead, there is actually a new complete and consistent hypothesis the robot can go to the oracle
+# room trying its guessing.
+# So, there are two outcomes:
 # - enter room, if the robot is still collecting hints
-# - go_oracle, if the hypothesis formulate is complete and consistent
-# - moving, if the hypothesis formulated is uncomplete or inconsistent.  
+# - go_oracle, if the hypothesis formulated is complete and consistent  
 class Motion(smach.State):
 
     def __init__(self):
@@ -419,8 +436,7 @@ class Room(smach.State):
         return 'complete'
         
         
-        
-        
+                
 class Complete(smach.State):
 
     def __init__(self):
@@ -429,40 +445,62 @@ class Complete(smach.State):
         
     def execute(self, userdata):
 
-        global roomID_client, url, hypotheses
+        global roomID_client, url, hypotheses, complete_hypotheses, elements
+        # retrieving all the IDs found in the current room
         res = roomID_client()
         room_IDs = res.roomid
         
+        # saving all the hypotheses find in the current room
+        for n in room_IDs:
+            hypotheses.append('Hypothesis' + str(n))
+        
         # check the completeness
         print('Checking if there is one complete hypothesis')
-        for item in room_IDs:
-            url = '<http://www.emarolab.it/cluedo-ontology#Hypothesis{}>'.format(item)
         
-            iscomplete = complete()
-            time.sleep(1)
-            # if the list of queried object of the class COMPLETED is empty
-            if len(iscomplete.queried_objects) == 0:
-                print('The hypothesis{} is uncomplete'.format(item))
+        # checking if the hypotheses had already been checked
+        indexes = list_index(complete_hypotheses, hypotheses)
+        
+        # removing the hypotheses that are already complete
+        if indexes:
+            for i in indexes:
+                hypotheses.pop(i)
+        
+        # checking the completeness of the hypotheses not already checked  
+        if hypotheses:    
+            for item in hypotheses:
+                url = '<http://www.emarolab.it/cluedo-ontology#{}>'.format(item)
+        
+                iscomplete = complete()
                 time.sleep(1)
-            # if the list of queried object of the class COMPLETED is not empty
-            elif len(iscomplete.queried_objects) != 0:       
-                # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
-                if url not in iscomplete.queried_objects:
-                    print('The hypothesis{} is uncomplete'.format(item))
+                # if the list of queried object of the class COMPLETED is empty
+                if len(iscomplete.queried_objects) == 0:
+                    print('The {} is uncomplete'.format(item))
                     time.sleep(1)
-                elif url in iscomplete.queried_objects:
-                    print('The hypothesis{} is complete'.format(item))
-                    time.sleep(1)
-                    hypo = 'Hypothesis' + str(item)
-                    check = search(hypotheses, hypo)
-                    if check:
-                        print('Already checked')
-                    else:
-                        hypotheses.append('Hypothesis' + str(item))
+                # if the list of queried object of the class COMPLETED is not empty
+                elif len(iscomplete.queried_objects) != 0:       
+                    # checking if the current hypothesis is present or not in the list of queried objects of the class COMPLETED
+                    if url not in iscomplete.queried_objects:
+                        print('The {} is uncomplete'.format(item))
+                        time.sleep(1)
+                    elif url in iscomplete.queried_objects:
+                        print('The {} is complete'.format(item))
+                        time.sleep(1)
+                        # save the new complete hypothesis
+                        complete_hypotheses.append(item)  
+                        
+        else:
+            print('No new complete hypotheses')               
         
-        if hypotheses:
+        # checking if there are new complete hypotheses        
+        if len(complete_hypotheses) > elements:
+            print('A new complete hypothesis has been found')
+            # empty hypotheses
+            hypotheses.clear()
             return 'consistency'
         else:
+            print('No new complete hypotheses to check')
+            # empty hypotheses
+            hypotheses.clear()
             return 'motion'        
 
         
@@ -474,22 +512,58 @@ class Consistency(smach.State):
         
     def execute(self, userdata):
     
-        global consistent, hypotheses
-        print('Checking if it is consistent ..')
-        isinconsistent = inconsistent()
-        if len(isinconsistent.queried_objects) != 0:
-            # objects of the class INCONSISTENT
-            if url in isinconsistent.queried_objects:
-                print('The hypothesis is inconsistent')
-                consistent = False
-            elif url not in isinconsistent.queried_objects:
-                print('The hypothesis is complete and consistent')
-                print('The robot is ready to go to the oracle')
-                consistent = True
-        elif len(isinconsistent.queried_objects) == 0:
-            print('The hypothesis is complete and consistent')
+        global consistent, complete_hypotheses, consistent_hypotheses, inconsistent_hypotheses, elements, hypo_check, last, url
+        # updating the threshold 
+        elements = len(complete_hypotheses)
+               
+        print('Checking if there is one consistent hypothesis')
+        
+        # checking if the hypotheses had already been checked
+        indexes_cons = list_index(consistent_hypotheses, complete_hypotheses)
+        indexes_incons = list_index(inconsistent_hypotheses, complete_hypotheses)
+        
+        hypo_check = complete_hypotheses
+        
+         # removing the hypotheses that have already been checked
+        if indexes_cons:
+            for i in indexes:
+                hypo_check.pop(i)
+                
+        if indexes_incons:
+            for i in indexes:
+                hypo_check.pop(i)
+        
+        # checking the consistency of the hypotheses not already checked    
+        for item in hypo_check:
+            url = '<http://www.emarolab.it/cluedo-ontology#{}>'.format(item)
+        
+            isinconsistent = inconsistent()
+            if len(isinconsistent.queried_objects) != 0:
+                # objects of the class INCONSISTENT
+                if url in isinconsistent.queried_objects:
+                    print('The {} is inconsistent'.format(item))
+                    inconsistent_hypotheses.append(item)
+                elif url not in isinconsistent.queried_objects:
+                    print('The {} is complete and consistent'.format(item))
+                    print('The robot is ready to go to the oracle')
+                    consistent_hypotheses.append(item)
+            elif len(isinconsistent.queried_objects) == 0:
+                print('The {} is complete and consistent'.format(item))
+                consistent_hypotheses.append(item)
+            
+        # checking if there are new complete and consistent hypotheses        
+        if len(consistent_hypotheses) > last:
+            print('A new complete and consistent hypothesis has been found')
+            # empty hypo_check
+            hypo_check.clear()
             consistent = True
-        return 'motion'
+            return 'motion'
+        else:
+            print('No new consistent hypotheses')
+            # empty hypo_check
+            hypo_check.clear()
+            consistent = False
+            return 'motion'
             
 
 ##
@@ -515,15 +589,49 @@ class Oracle(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client, consistent
+        global oracle_client, last, consistent_hypotheses, consistent 
         
         print('The robot is inside the oracle rooom')
         time.sleep(3)
+        
+        last = len(consistent_hypotheses)
+        consistent = False
         
         # waiting for the service that gives the ID of the winning hypothesis
         rospy.wait_for_service('/oracle_solution')
         
         print('Oracle: "Name your guess"')
+        indexes_guess = list_index(wrong_guess, consistent_hypotheses)
+        
+        guess = consistent_hypotheses
+        
+         # removing the hypotheses that have already been checked
+        if indexes_guess:
+            for g in indexes:
+                guess.pop(i)
+        
+        # retrieving the current hypothesis
+        who_url = retrieve_hypo('who', guess[-1])
+        what_url = retrieve_hypo('what', guess[-1])
+        where_url = retrieve_hypo('where', guess[-1])
+        
+        who_queried = who_url.queried_objects
+        what_queried = what_url.queried_objects
+        where_queried = where_url.queried_objects
+        
+        who = find_string(who_queried[0])
+        what = find_string(what_queried[0])
+        where = find_string(where_queried[0])
+        
+        # retrieving the current ID
+        url_ind = '<http://www.emarolab.it/cluedo-ontology#Hypothesis'
+        curr_ID = obj_query.replace(url_ind, '')
+        cur_ID = obj_query.replace('>', '')
+        
+        # converting the string into an integer
+        current_ID = int(cur_ID)
+        
+        print('{} with the {} in the {}'.format(who, what, where))
         time.sleep(1)
         # oracle client
         res = oracle_client()
@@ -536,6 +644,7 @@ class Oracle(smach.State):
         # otherwise if they are not the same   
         else:
             print('No you are wrong, maybe next time you will have better luck')
+            wrong_guess.append
             consistent = False
             return 'motion' 
         
