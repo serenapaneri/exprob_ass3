@@ -10,7 +10,6 @@ project(exprob_ass3)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  actionlib_msgs
   exprob_ass2
   message_generation
   urdf
@@ -18,6 +17,9 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   moveit_ros_planning_interface
+  actionlib
+  actionlib_msgs
+  move_base
 )
 
 ## System dependencies are found with CMake's conventions
@@ -183,6 +185,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
  catkin_install_python(PROGRAMS
    scripts/hints.py
+   scripts/state_machine.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

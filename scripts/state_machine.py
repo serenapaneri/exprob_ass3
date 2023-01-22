@@ -48,6 +48,7 @@ import random
 import smach
 import smach_ros
 import time
+import actionlib
 from armor_msgs.srv import * 
 from armor_msgs.msg import * 
 from exprob_ass3.srv import Command
@@ -55,6 +56,7 @@ from exprob_ass3.srv import Pose
 from exprob_ass3.srv import RoomID
 from exprob_ass2.srv import Oracle
 from geometry_msgs.msg import Twist
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 # lists of the individuals of the cluedo game
 people = ["missScarlett", "colonelMustard", "mrsWhite", "mrGreen", "mrsPeacock", "profPlum"]
@@ -76,6 +78,8 @@ comm_client = None
 roomID_client = None
 # cmd_vel publisher
 vel_pub = None
+# move_base client
+move_base_client = None
 
 consistent = False
 hypotheses = []
@@ -83,6 +87,8 @@ hypo_check = []
 complete_hypotheses = []
 consistent_hypotheses = []
 inconsistent_hypotheses = []
+wrong_guess = []
+
 url = ''
 elements = 0
 last = 0
@@ -385,14 +391,26 @@ class Motion(smach.State):
         
     def execute(self, userdata):
     
-        global consistent, rooms
+        global consistent, rooms, move_base_client
+        move_base_client.wait_for_server()
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = 'map'
+        # goal.target_pose.header.frame_id = 'odom'
         if consistent == True:
             # if there is at least one consistent hypothesis the robot goes to the oracle
-            # HERE IMPLEMENT MOVE_BASE TO GO (x = 0.0, y = -1.0)
+            goal.target_pose.pose.position.x = 0
+            goal.target_pose.pose.position.y = -1
+            goal.target_pose.pose.orientation.w = 1
+            move_base_client.send_goal(goal)
+            print('The robot is going to the oracle room')
             return 'go_oracle'
         else:
-            # HERE IMPLEMENT MOVE BASE TO ROOMS[-1]
+            # going to 
+            goal.target_pose.pose.position.x = rooms[-1][0]
+            goal.target_pose.pose.position.y = rooms[-1][1]
+            goal.target_pose.pose.orientation.w = 1
             rooms.pop()
+            print('The robot is searching for hints')
             return 'enter_room'
 
 
@@ -416,6 +434,7 @@ class Room(smach.State):
         pose_client('low_detection')
         # start detecting hints
         comm_client('start')
+        print('Start collecting hints')
         
         # making the robot rotates 
         velocity = Twist()
@@ -433,6 +452,7 @@ class Room(smach.State):
         comm_client('stop')
         # makes the robot assuming the default position
         pose_client('default')
+        print('Finish collecting hints')
         return 'complete'
         
         
@@ -472,6 +492,7 @@ class Complete(smach.State):
         
                 iscomplete = complete()
                 time.sleep(1)
+                print(iscomplete.queried_objects)
                 # if the list of queried object of the class COMPLETED is empty
                 if len(iscomplete.queried_objects) == 0:
                     print('The {} is uncomplete'.format(item))
@@ -522,6 +543,7 @@ class Consistency(smach.State):
         indexes_cons = list_index(consistent_hypotheses, complete_hypotheses)
         indexes_incons = list_index(inconsistent_hypotheses, complete_hypotheses)
         
+        # create a new list containing all the elements of complete_hypotheses
         hypo_check = complete_hypotheses
         
          # removing the hypotheses that have already been checked
@@ -538,6 +560,7 @@ class Consistency(smach.State):
             url = '<http://www.emarolab.it/cluedo-ontology#{}>'.format(item)
         
             isinconsistent = inconsistent()
+            print(isinconsistent.queried_objects)
             if len(isinconsistent.queried_objects) != 0:
                 # objects of the class INCONSISTENT
                 if url in isinconsistent.queried_objects:
@@ -589,7 +612,7 @@ class Oracle(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client, last, consistent_hypotheses, consistent 
+        global oracle_client, last, consistent_hypotheses, consistent, wrong_guess
         
         print('The robot is inside the oracle rooom')
         time.sleep(3)
@@ -623,10 +646,9 @@ class Oracle(smach.State):
         what = find_string(what_queried[0])
         where = find_string(where_queried[0])
         
-        # retrieving the current ID
-        url_ind = '<http://www.emarolab.it/cluedo-ontology#Hypothesis'
-        curr_ID = obj_query.replace(url_ind, '')
-        cur_ID = obj_query.replace('>', '')
+        # retrieving the current ID       
+        str_ = 'Hypothesis'
+        cur_ID = guess[-1].replace(str_, '')
         
         # converting the string into an integer
         current_ID = int(cur_ID)
@@ -637,14 +659,14 @@ class Oracle(smach.State):
         res = oracle_client()
         winning_ID = res.ID
         # if the two IDs coincides
-        if current_ID == winning_ID
+        if current_ID == winning_ID:
             print('Yes, you guessed right!')
             save()
             return 'game_finished'
         # otherwise if they are not the same   
         else:
             print('No you are wrong, maybe next time you will have better luck')
-            wrong_guess.append
+            wrong_guess.append(guess[-1])
             consistent = False
             return 'motion' 
         
@@ -658,7 +680,7 @@ class Oracle(smach.State):
 # as well as the hint subscriber.
 def main():
 
-    global armor_interface, oracle_client, pose_client, roomID_client, comm_client, vel_pub
+    global armor_interface, oracle_client, pose_client, roomID_client, comm_client, vel_pub, move_base_client
     rospy.init_node('state_machine')
     sm = smach.StateMachine(outcomes=['game_finished'])
     
@@ -676,6 +698,8 @@ def main():
     roomID_client = rospy.ServiceProxy('roomID', RoomID)
     # cmd_vel publisher
     vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
+    # move_base client
+    move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
 
     with sm:
