@@ -355,14 +355,14 @@ class StartGame(smach.State):
         # uploading all the individuals of the lists
         tbox()
         # reasoner
-        reason()
+        reasoner()
         time.sleep(1)
         print('Disjoint the individuals of all classes')
         # disjoint the individuals of all the classes
         disjoint_individuals()
         time.sleep(1)
         # reasoners
-        reason()
+        reasoner()
         # randomize the rooms order
         random.shuffle(rooms)
         
@@ -394,7 +394,7 @@ class Motion(smach.State):
         global consistent, rooms, move_base_client
         move_base_client.wait_for_server()
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = 'map'
+        goal.target_pose.header.frame_id = 'odom'
         # goal.target_pose.header.frame_id = 'odom'
         if consistent == True:
             # if there is at least one consistent hypothesis the robot goes to the oracle
@@ -402,13 +402,17 @@ class Motion(smach.State):
             goal.target_pose.pose.position.y = -1
             goal.target_pose.pose.orientation.w = 1
             move_base_client.send_goal(goal)
+            move_base_client.wait_for_result()
             print('The robot is going to the oracle room')
             return 'go_oracle'
         else:
-            # going to 
+            # going to a random room
+            print('Going to: {}'.format(rooms[-1]))
             goal.target_pose.pose.position.x = rooms[-1][0]
             goal.target_pose.pose.position.y = rooms[-1][1]
             goal.target_pose.pose.orientation.w = 1
+            move_base_client.send_goal(goal)
+            move_base_client.wait_for_result()
             rooms.pop()
             print('The robot is searching for hints')
             return 'enter_room'
@@ -439,10 +443,10 @@ class Room(smach.State):
         # making the robot rotates 
         velocity = Twist()
         # setting the angular velocity
-        velocity.angular.z = 0.3
+        velocity.angular.z = 0.2
         # publishing on cmd_vel 
         vel_pub.publish(velocity)
-        time.sleep(60)
+        time.sleep(120)
         # stops the robot  
         velocity.angular.z = 0.0
         # publishing on cmd_vel 
@@ -604,7 +608,7 @@ class Consistency(smach.State):
 # Here we have two outcomes:
 # - game_finished, if the hypothesis found is the correct one
 # - motion, if the hypothesis found is wrong.     
-class Oracle(smach.State):
+class OracleRoom(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
@@ -708,7 +712,7 @@ def main():
                                
         smach.StateMachine.add('Motion', Motion(), 
                                transitions={'enter_room':'Room', 
-                                            'go_oracle':'Oracle'})
+                                            'go_oracle':'OracleRoom'})
                                             
         smach.StateMachine.add('Room', Room(), 
                                transitions={'complete':'Complete'})
@@ -720,7 +724,7 @@ def main():
         smach.StateMachine.add('Consistency', Consistency(), 
                                transitions={'motion':'Motion'})
                                
-        smach.StateMachine.add('Oracle', Oracle(), 
+        smach.StateMachine.add('OracleRoom', OracleRoom(), 
                                transitions={'motion':'Motion', 
                                             'game_finished':'game_finished'})
 
