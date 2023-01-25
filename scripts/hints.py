@@ -167,6 +167,8 @@ def main():
             ID_ = hints.oracle_hint.ID
             key = hints.oracle_hint.key
             value = hints.oracle_hint.value
+            
+            print(hints)
         
             if key == '' or value == '' or key == 'when' or value == '-1':
                 print('Malformed hint, the robot will discard this')
@@ -174,7 +176,7 @@ def main():
             else:
                 print('Hint collected: {}, {}, {}'.format(ID_, key, value)) 
                 # uploading the hint in the ontology
-                upload_hint(ID_, key, value)
+                # upload_hint(ID_, key, value)
                 if len(room_IDs) < 2:
                     room_IDs.append(ID_)
                 else:

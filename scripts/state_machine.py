@@ -392,18 +392,19 @@ class Motion(smach.State):
     def execute(self, userdata):
     
         global consistent, rooms, move_base_client
-        move_base_client.wait_for_server()
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = 'odom'
-        # goal.target_pose.header.frame_id = 'odom'
+        goal.target_pose.header.frame_id = 'map'
         if consistent == True:
             # if there is at least one consistent hypothesis the robot goes to the oracle
             goal.target_pose.pose.position.x = 0
             goal.target_pose.pose.position.y = -1
             goal.target_pose.pose.orientation.w = 1
+           
             move_base_client.send_goal(goal)
-            move_base_client.wait_for_result()
+            move_base_client.wait_for_result(rospy.Duration(30))
+            move_base_client.cancel_goal()
             print('The robot is going to the oracle room')
+            # rospy.sleep(15)
             return 'go_oracle'
         else:
             # going to a random room
@@ -411,10 +412,13 @@ class Motion(smach.State):
             goal.target_pose.pose.position.x = rooms[-1][0]
             goal.target_pose.pose.position.y = rooms[-1][1]
             goal.target_pose.pose.orientation.w = 1
+            
             move_base_client.send_goal(goal)
-            move_base_client.wait_for_result()
+            move_base_client.wait_for_result(rospy.Duration(30))
+            move_base_client.cancel_goal()
             rooms.pop()
             print('The robot is searching for hints')
+            # rospy.sleep(15)
             return 'enter_room'
 
 
@@ -446,7 +450,7 @@ class Room(smach.State):
         velocity.angular.z = 0.2
         # publishing on cmd_vel 
         vel_pub.publish(velocity)
-        time.sleep(120)
+        time.sleep(145)
         # stops the robot  
         velocity.angular.z = 0.0
         # publishing on cmd_vel 
@@ -704,6 +708,7 @@ def main():
     vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
     # move_base client
     move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+    move_base_client.wait_for_server()
 
 
     with sm:
