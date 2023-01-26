@@ -7,7 +7,5 @@
     <node pkg="armor" type="execute" name="armor_service" args="it.emarolab.armor.ARMORMainService"/>
     <node name="final_oracle" pkg="exprob_ass3" type="final_oracle"/>
     <node name="move_arm" pkg="exprob_ass3" type="move_arm"/>
-    <node name="marker_publisher" pkg="aruco_ros" type="marker_publisher" />
-    
             
 </launch>

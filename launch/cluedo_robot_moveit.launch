@@ -62,10 +62,10 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <!--<include file="$(find moveit_exprob_ass3)/launch/moveit_rviz.launch">
-    <arg name="rviz_config" value="$(find moveit_exprob_ass3)/launch/moveit.rviz"/>
+  <include file="$(find moveit_exprob_ass3)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(find exprob_ass3)/config/sim.rviz"/>
     <arg name="debug" value="$(arg debug)"/>
-  </include> -->
+  </include>
 
   <!-- If database loading was enabled, start mongodb as well -->
   <include file="$(find moveit_exprob_ass3)/launch/default_warehouse_db.launch" if="$(arg db)">

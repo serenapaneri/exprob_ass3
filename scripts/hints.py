@@ -8,6 +8,8 @@ from exprob_ass3.srv import Command
 from exprob_ass3.srv import RoomID, RoomIDResponse
 from exprob_ass3.msg import ID
 
+# armor interface
+armor_interface = None
 # oracle_hint client
 hint_client = None
 # command service
@@ -142,7 +144,7 @@ def apply_():
 
 def main():
 
-    global hint_client, ID_sub_, comm_srv, roomid_srv, IDs, room_IDs
+    global hint_client, ID_sub_, comm_srv, roomid_srv, IDs, room_IDs, armor_interface
     rospy.init_node('hints')
 
     # armor service
@@ -159,7 +161,7 @@ def main():
     roomid_srv = rospy.Service('roomID', RoomID, RoomID_handle)
        
 
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(5)
     while not rospy.is_shutdown():
     
         if start == True:
@@ -167,8 +169,6 @@ def main():
             ID_ = hints.oracle_hint.ID
             key = hints.oracle_hint.key
             value = hints.oracle_hint.value
-            
-            print(hints)
         
             if key == '' or value == '' or key == 'when' or value == '-1':
                 print('Malformed hint, the robot will discard this')
@@ -176,16 +176,15 @@ def main():
             else:
                 print('Hint collected: {}, {}, {}'.format(ID_, key, value)) 
                 # uploading the hint in the ontology
-                # upload_hint(ID_, key, value)
-                if len(room_IDs) < 2:
+                upload_hint(ID_, key, value)
+                if len(room_IDs) < 1:
                     room_IDs.append(ID_)
                 else:
                     element = search(room_IDs, ID_)
                     if element == True:
                         rate.sleep()
                     else:
-                        room_IDs.append(ID_)
-                    
+                        room_IDs.append(ID_)     
             rate.sleep()
                         
         elif start == False:

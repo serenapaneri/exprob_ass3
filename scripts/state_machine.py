@@ -55,7 +55,9 @@ from exprob_ass3.srv import Command
 from exprob_ass3.srv import Pose
 from exprob_ass3.srv import RoomID
 from exprob_ass2.srv import Oracle
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Point
+from nav_msgs.msg import Odometry
+from tf import transformations
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 # lists of the individuals of the cluedo game
@@ -64,7 +66,13 @@ weapons = ["candlestick", "dagger", "leadPipe", "revolver", "rope", "spanner"]
 places = ["conservatory", "lounge", "kitchen", "library", "hall", "study", "bathroom", "diningRoom", "billiardRoom"]
 
 # list of rooms
-rooms = [[-4, -3], [-4, 2], [-4, 7], [5, -7], [5, -3], [5, 1]]
+room1 = [-4, -3, -1, -4]
+room2 = [-4, 2, -3, 1]
+room3 = [-4, 7, -1, 5]
+room4 = [5, -7, 1, -8]
+room5 = [5, -3, 4, -4.5]
+room6 = [5, 1, 5.5, 0]
+rooms = [room1, room2, room3, room4, room5, room6]
 
 # armor client
 armor_interface = None
@@ -93,6 +101,27 @@ url = ''
 elements = 0
 last = 0
 
+actual_position = Point()
+actual_position.x = 0
+actual_position.y = 0
+actual_yaw = 0 
+
+second_round = False
+
+
+def odom_callback(msg):
+    global actual_position, actual_yaw
+    
+    # actual position
+    actual_position = msg.pose.pose.position
+    # actual yaw
+    quaternion = (
+        msg.pose.pose.orientation.x,
+        msg.pose.pose.orientation.y,
+        msg.pose.pose.orientation.z,
+        msg.pose.pose.orientation.w)
+    euler = transformations.euler_from_quaternion(quaternion)
+    actual_yaw = euler[2]
 
 ##
 # \brief The load function loads the cluedo_ontology.
@@ -387,39 +416,57 @@ class Motion(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
-                             outcomes=['enter_room','go_oracle'])
+                             outcomes=['enter_room','go_oracle', 'game_finished'])
         
     def execute(self, userdata):
     
-        global consistent, rooms, move_base_client
+        global consistent, rooms, move_base_client, actual_position, actual_yaw, second_round
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = 'map'
         if consistent == True:
             # if there is at least one consistent hypothesis the robot goes to the oracle
             goal.target_pose.pose.position.x = 0
-            goal.target_pose.pose.position.y = -1
+            goal.target_pose.pose.position.y = - 1
             goal.target_pose.pose.orientation.w = 1
            
+            move_base_client.wait_for_server()
             move_base_client.send_goal(goal)
-            move_base_client.wait_for_result(rospy.Duration(30))
-            move_base_client.cancel_goal()
+            
+            while ((actual_position.x - 0)*(actual_position.x - 0) + (actual_position.y - (-1))*(actual_position.y - (-1))) > 0.05:
+                time.sleep(0.1)
+            
+            move_base_client.cancel_all_goals()
             print('The robot is going to the oracle room')
-            # rospy.sleep(15)
             return 'go_oracle'
         else:
-            # going to a random room
-            print('Going to: {}'.format(rooms[-1]))
-            goal.target_pose.pose.position.x = rooms[-1][0]
-            goal.target_pose.pose.position.y = rooms[-1][1]
-            goal.target_pose.pose.orientation.w = 1
+            if rooms:
+                print('The robot is searching for hints')
+                # going to a random room
+                if second_round == False:
+                    print('Going to: [{}, {}]'.format(rooms[-1][0], rooms[-1][1]))
+                    goal.target_pose.pose.position.x = rooms[-1][0]
+                    goal.target_pose.pose.position.y = rooms[-1][1]
+                    goal.target_pose.pose.orientation.w = 1
+                    move_base_client.wait_for_server()
+                    move_base_client.send_goal(goal)
+                    while ((actual_position.x - rooms[-1][0])*(actual_position.x - rooms[-1][0]) + (actual_position.y - rooms[-1][1])*(actual_position.y - rooms[-1][1])) > 0.05:
+                        time.sleep(0.1)
             
-            move_base_client.send_goal(goal)
-            move_base_client.wait_for_result(rospy.Duration(30))
-            move_base_client.cancel_goal()
-            rooms.pop()
-            print('The robot is searching for hints')
-            # rospy.sleep(15)
-            return 'enter_room'
+                if second_round == True:
+                    print('Going to: [{}, {}]'.format(rooms[-1][2], rooms[-1][3]))
+                    goal.target_pose.pose.position.x = rooms[-1][2]
+                    goal.target_pose.pose.position.y = rooms[-1][3]
+                    goal.target_pose.pose.orientation.w = 1
+                    move_base_client.wait_for_server()
+                    move_base_client.send_goal(goal)
+                    while ((actual_position.x - rooms[-1][2])*(actual_position.x - rooms[-1][2]) + (actual_position.y - rooms[-1][3])*(actual_position.y - rooms[-1][3])) > 0.05:
+                        time.sleep(0.1)
+                    rooms.pop()
+                  
+                move_base_client.cancel_all_goals()
+                return 'enter_room'
+            else:
+                return 'game_finished'
 
 
 
@@ -433,11 +480,11 @@ class Room(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, 
-                             outcomes=['complete'])
+                             outcomes=['complete', 'motion'])
         
     def execute(self, userdata):
 
-        global comm_client, pose_client, vel_pub
+        global comm_client, pose_client, vel_pub, second_round
         # makes the robot assuming the low_detection position
         pose_client('low_detection')
         # start detecting hints
@@ -447,21 +494,25 @@ class Room(smach.State):
         # making the robot rotates 
         velocity = Twist()
         # setting the angular velocity
-        velocity.angular.z = 0.2
+        velocity.angular.z = 0.5
         # publishing on cmd_vel 
         vel_pub.publish(velocity)
-        time.sleep(145)
+        # time needed to accomplish the task
+        time.sleep(80)
         # stops the robot  
         velocity.angular.z = 0.0
         # publishing on cmd_vel 
         vel_pub.publish(velocity)
-        
-        # stop detecting hints
-        comm_client('stop')
         # makes the robot assuming the default position
         pose_client('default')
-        print('Finish collecting hints')
-        return 'complete'
+        
+        if second_round == False:
+            second_round = True
+            return 'motion'
+        if second_round == True:
+            second_round = False
+            print('Finish collecting hints')
+            return 'complete'
         
         
                 
@@ -473,10 +524,13 @@ class Complete(smach.State):
         
     def execute(self, userdata):
 
-        global roomID_client, url, hypotheses, complete_hypotheses, elements
+        global roomID_client, url, hypotheses, complete_hypotheses, elements, comm_client
         # retrieving all the IDs found in the current room
         res = roomID_client()
         room_IDs = res.roomid
+        
+        # stop detecting hints
+        comm_client('stop')
         
         # saving all the hypotheses find in the current room
         for n in room_IDs:
@@ -706,9 +760,10 @@ def main():
     roomID_client = rospy.ServiceProxy('roomID', RoomID)
     # cmd_vel publisher
     vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 1)
+    # odom subscriber
+    odom_sub = rospy.Subscriber('/odom', Odometry, odom_callback)
     # move_base client
     move_base_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-    move_base_client.wait_for_server()
 
 
     with sm:
@@ -717,10 +772,12 @@ def main():
                                
         smach.StateMachine.add('Motion', Motion(), 
                                transitions={'enter_room':'Room', 
-                                            'go_oracle':'OracleRoom'})
+                                            'go_oracle':'OracleRoom',
+                                            'game_finished':'game_finished'})
                                             
         smach.StateMachine.add('Room', Room(), 
-                               transitions={'complete':'Complete'})
+                               transitions={'complete':'Complete',
+                                            'motion':'Motion'})
                                
         smach.StateMachine.add('Complete', Complete(), 
                                transitions={'motion':'Motion',
