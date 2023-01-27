@@ -95,7 +95,9 @@ hypo_check = []
 complete_hypotheses = []
 consistent_hypotheses = []
 inconsistent_hypotheses = []
+guess = []
 wrong_guess = []
+right_guess = []
 
 url = ''
 elements = 0
@@ -451,6 +453,7 @@ class Motion(smach.State):
                     move_base_client.send_goal(goal)
                     while ((actual_position.x - rooms[-1][0])*(actual_position.x - rooms[-1][0]) + (actual_position.y - rooms[-1][1])*(actual_position.y - rooms[-1][1])) > 0.05:
                         time.sleep(0.1)
+                    print('Start collecting hints')
             
                 if second_round == True:
                     print('Going to: [{}, {}]'.format(rooms[-1][2], rooms[-1][3]))
@@ -466,6 +469,7 @@ class Motion(smach.State):
                 move_base_client.cancel_all_goals()
                 return 'enter_room'
             else:
+                save()
                 return 'game_finished'
 
 
@@ -489,7 +493,6 @@ class Room(smach.State):
         pose_client('low_detection')
         # start detecting hints
         comm_client('start')
-        print('Start collecting hints')
         
         # making the robot rotates 
         velocity = Twist()
@@ -537,10 +540,12 @@ class Complete(smach.State):
             hypotheses.append('Hypothesis' + str(n))
         
         # check the completeness
-        print('Checking if there is one complete hypothesis')
+        print('Checking the completeness ..')
+        time.sleep(1)
         
         # checking if the hypotheses had already been checked
-        indexes = list_index(complete_hypotheses, hypotheses)
+        indexes = list_index(hypotheses, complete_hypotheses)
+        indexes.sort(reverse = True)        
         
         # removing the hypotheses that are already complete
         if indexes:
@@ -574,14 +579,16 @@ class Complete(smach.State):
         else:
             print('No new complete hypotheses')               
         
-        # checking if there are new complete hypotheses        
+        # checking if there are new complete hypotheses 
         if len(complete_hypotheses) > elements:
             print('A new complete hypothesis has been found')
+            time.sleep(1)
             # empty hypotheses
             hypotheses.clear()
             return 'consistency'
         else:
             print('No new complete hypotheses to check')
+            time.sleep(1)
             # empty hypotheses
             hypotheses.clear()
             return 'motion'        
@@ -600,22 +607,34 @@ class Consistency(smach.State):
         elements = len(complete_hypotheses)
                
         print('Checking if there is one consistent hypothesis')
+        time.sleep(1)
         
+        print(consistent_hypotheses)
+        print(inconsistent_hypotheses)
         # checking if the hypotheses had already been checked
-        indexes_cons = list_index(consistent_hypotheses, complete_hypotheses)
-        indexes_incons = list_index(inconsistent_hypotheses, complete_hypotheses)
+        indexes_cons = list_index(complete_hypotheses, consistent_hypotheses)
+        indexes_incons = list_index(complete_hypotheses, inconsistent_hypotheses)
         
         # create a new list containing all the elements of complete_hypotheses
-        hypo_check = complete_hypotheses
+        hypo_check.extend(complete_hypotheses)
+        
+        print(hypo_check)
+        
+        indexes_cons.sort(reverse = True)
+        print(indexes_cons)
+        indexes_incons.sort(reverse = True)
+        print(indexes_cons)
         
          # removing the hypotheses that have already been checked
         if indexes_cons:
-            for i in indexes:
+            for i in indexes_cons:
                 hypo_check.pop(i)
                 
         if indexes_incons:
-            for i in indexes:
+            for i in indexes_incons:
                 hypo_check.pop(i)
+                
+        print(hypo_check)
         
         # checking the consistency of the hypotheses not already checked    
         for item in hypo_check:
@@ -627,24 +646,32 @@ class Consistency(smach.State):
                 # objects of the class INCONSISTENT
                 if url in isinconsistent.queried_objects:
                     print('The {} is inconsistent'.format(item))
+                    time.sleep(1)
                     inconsistent_hypotheses.append(item)
                 elif url not in isinconsistent.queried_objects:
                     print('The {} is complete and consistent'.format(item))
+                    time.sleep(1)
                     print('The robot is ready to go to the oracle')
+                    time.sleep(1)
                     consistent_hypotheses.append(item)
             elif len(isinconsistent.queried_objects) == 0:
                 print('The {} is complete and consistent'.format(item))
+                time.sleep(1)
                 consistent_hypotheses.append(item)
+                print('The robot is ready to go to the oracle')
+                time.sleep(1)
             
         # checking if there are new complete and consistent hypotheses        
         if len(consistent_hypotheses) > last:
             print('A new complete and consistent hypothesis has been found')
+            time.sleep(1)
             # empty hypo_check
             hypo_check.clear()
             consistent = True
             return 'motion'
         else:
             print('No new consistent hypotheses')
+            time.sleep(1)
             # empty hypo_check
             hypo_check.clear()
             consistent = False
@@ -674,7 +701,7 @@ class OracleRoom(smach.State):
         
     def execute(self, userdata):
     
-        global oracle_client, last, consistent_hypotheses, consistent, wrong_guess
+        global oracle_client, last, consistent_hypotheses, consistent, wrong_guess, guess, right_guess
         
         print('The robot is inside the oracle rooom')
         time.sleep(3)
@@ -686,49 +713,57 @@ class OracleRoom(smach.State):
         rospy.wait_for_service('/oracle_solution')
         
         print('Oracle: "Name your guess"')
-        indexes_guess = list_index(wrong_guess, consistent_hypotheses)
+        indexes_guess = list_index(consistent_hypotheses, wrong_guess)
         
-        guess = consistent_hypotheses
+        guess.extend(consistent_hypotheses)
         
          # removing the hypotheses that have already been checked
         if indexes_guess:
-            for g in indexes:
-                guess.pop(i)
+            for g in indexes_guess:
+                guess.pop(g)
         
-        # retrieving the current hypothesis
-        who_url = retrieve_hypo('who', guess[-1])
-        what_url = retrieve_hypo('what', guess[-1])
-        where_url = retrieve_hypo('where', guess[-1])
+        print(guess)
+        for item in guess:
+            # retrieving the current hypothesis
+            who_url = retrieve_hypo('who', item)
+            what_url = retrieve_hypo('what', item)
+            where_url = retrieve_hypo('where', item)
         
-        who_queried = who_url.queried_objects
-        what_queried = what_url.queried_objects
-        where_queried = where_url.queried_objects
+            who_queried = who_url.queried_objects
+            what_queried = what_url.queried_objects
+            where_queried = where_url.queried_objects
         
-        who = find_string(who_queried[0])
-        what = find_string(what_queried[0])
-        where = find_string(where_queried[0])
+            who = find_string(who_queried[0])
+            what = find_string(what_queried[0])
+            where = find_string(where_queried[0])
         
-        # retrieving the current ID       
-        str_ = 'Hypothesis'
-        cur_ID = guess[-1].replace(str_, '')
+            # retrieving the current ID       
+            str_ = 'Hypothesis'
+            cur_ID = item.replace(str_, '')
         
-        # converting the string into an integer
-        current_ID = int(cur_ID)
+            # converting the string into an integer
+            current_ID = int(cur_ID)
+            print(current_ID)
         
-        print('{} with the {} in the {}'.format(who, what, where))
-        time.sleep(1)
-        # oracle client
-        res = oracle_client()
-        winning_ID = res.ID
-        # if the two IDs coincides
-        if current_ID == winning_ID:
+            print('{} with the {} in the {}'.format(who, what, where))
+            time.sleep(1)
+            # oracle client
+            res = oracle_client()
+            winning_ID = res.ID
+            # if the two IDs coincides
+            if current_ID == winning_ID:
+                right_guess.append(item)
+            # otherwise if they are not the same   
+            else:
+                wrong_guess.append(item)
+                  
+        if right_guess:
             print('Yes, you guessed right!')
             save()
             return 'game_finished'
-        # otherwise if they are not the same   
         else:
             print('No you are wrong, maybe next time you will have better luck')
-            wrong_guess.append(guess[-1])
+            guess.clear()
             consistent = False
             return 'motion' 
         
