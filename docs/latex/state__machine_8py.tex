@@ -1,0 +1,438 @@
+\hypertarget{state__machine_8py}{}\doxysection{scripts/state\+\_\+machine.py File Reference}
+\label{state__machine_8py}\index{scripts/state\_machine.py@{scripts/state\_machine.py}}
+
+
+script that implements the state machine of the game.  
+
+
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classstate__machine_1_1_start_game}{state\+\_\+machine.\+Start\+Game}}
+\begin{DoxyCompactList}\small\item\em Class \mbox{\hyperlink{classstate__machine_1_1_start_game}{Start\+Game}} of the state\+\_\+machine. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classstate__machine_1_1_motion}{state\+\_\+machine.\+Motion}}
+\begin{DoxyCompactList}\small\item\em Class \mbox{\hyperlink{classstate__machine_1_1_motion}{Motion}} of the state\+\_\+machine. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classstate__machine_1_1_room}{state\+\_\+machine.\+Room}}
+\begin{DoxyCompactList}\small\item\em Class \mbox{\hyperlink{classstate__machine_1_1_room}{Room}} of the state\+\_\+machine. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classstate__machine_1_1_complete}{state\+\_\+machine.\+Complete}}
+\begin{DoxyCompactList}\small\item\em Class \mbox{\hyperlink{classstate__machine_1_1_complete}{Complete}} of the state\+\_\+machine. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classstate__machine_1_1_consistency}{state\+\_\+machine.\+Consistency}}
+\begin{DoxyCompactList}\small\item\em Class \mbox{\hyperlink{classstate__machine_1_1_consistency}{Consistency}} of the state\+\_\+machine. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classstate__machine_1_1_oracle_room}{state\+\_\+machine.\+Oracle\+Room}}
+\begin{DoxyCompactList}\small\item\em Class Oracle of the state\+\_\+machine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{state__machine_8py_a1ba59db6527eece01290c64ba0fc5055}{state\+\_\+machine.\+odom\+\_\+callback}} (msg)
+\begin{DoxyCompactList}\small\item\em Callback function of the subscriber to odom. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a41ee7e13f04ccf97f0ff9e976723b1c7}{state\+\_\+machine.\+load}} ()
+\begin{DoxyCompactList}\small\item\em The load function loads the cluedo\+\_\+ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a8d44b7b6eb4696cde4e9d500e189975d}{state\+\_\+machine.\+tbox}} ()
+\begin{DoxyCompactList}\small\item\em Function to upload all the individuals. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a96909e78adbcfc2df77cc126fc7efcc0}{state\+\_\+machine.\+disjoint\+\_\+individuals}} ()
+\begin{DoxyCompactList}\small\item\em The disjoint\+\_\+individuals function disjoints the individuals of a class. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a4544702e36593af9cad4ceab4e08d11e}{state\+\_\+machine.\+reasoner}} ()
+\begin{DoxyCompactList}\small\item\em The reasoner of the ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a860742753d94af2a31988f0d0fdb6ad7}{state\+\_\+machine.\+complete}} ()
+\begin{DoxyCompactList}\small\item\em It is the query command to retrieve an individual from a class. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_aa90c8bb6d9ce99baca2bf2f652e0be0a}{state\+\_\+machine.\+inconsistent}} ()
+\begin{DoxyCompactList}\small\item\em It is the query command to retrieve an individual from a class. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a6458e29766572d1f19d2852b17c504d6}{state\+\_\+machine.\+retrieve\+\_\+hypo}} (prop\+\_\+name, ind\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Function that retrieves the object properties of an individual from the cluedo\+\_\+ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a4b53847ca13a533e54928a4ef6567f6e}{state\+\_\+machine.\+find\+\_\+string}} (obj\+\_\+query)
+\begin{DoxyCompactList}\small\item\em Function that \char`\"{}cleans\char`\"{} the url recieved by the cluedo ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a24100a20571e27ebd98cd4936fd5ea35}{state\+\_\+machine.\+save}} ()
+\begin{DoxyCompactList}\small\item\em It saves the changes on a new ontology file. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a804bc0879689ab5c7587bde98caa0831}{state\+\_\+machine.\+search\+\_\+list}} (list1, list2)
+\begin{DoxyCompactList}\small\item\em Function that checks if elements of list2 exist in list1. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_af71fbc7bd46029d411e6accb7a8158e0}{state\+\_\+machine.\+list\+\_\+index}} (list1, list2)
+\begin{DoxyCompactList}\small\item\em Function that returns the indixes in a list. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{state__machine_8py_a5c680ce705e6052fa07c6cece21743d0}{state\+\_\+machine.\+main}} ()
+\begin{DoxyCompactList}\small\item\em This is the main function of the node state\+\_\+machine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a5a227f5a0e9847abc4183584f1289baa}\label{state__machine_8py_a5a227f5a0e9847abc4183584f1289baa}} 
+list {\bfseries state\+\_\+machine.\+people} = \mbox{[}\char`\"{}miss\+Scarlett\char`\"{}, \char`\"{}colonel\+Mustard\char`\"{}, \char`\"{}mrs\+White\char`\"{}, \char`\"{}mr\+Green\char`\"{}, \char`\"{}mrs\+Peacock\char`\"{}, \char`\"{}prof\+Plum\char`\"{}\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a54ff215cc672c26b627321b18fb3126d}\label{state__machine_8py_a54ff215cc672c26b627321b18fb3126d}} 
+list {\bfseries state\+\_\+machine.\+weapons} = \mbox{[}\char`\"{}candlestick\char`\"{}, \char`\"{}dagger\char`\"{}, \char`\"{}lead\+Pipe\char`\"{}, \char`\"{}revolver\char`\"{}, \char`\"{}rope\char`\"{}, \char`\"{}spanner\char`\"{}\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a76bf03677781d84a3952feb68a88300d}\label{state__machine_8py_a76bf03677781d84a3952feb68a88300d}} 
+list {\bfseries state\+\_\+machine.\+places} = \mbox{[}\char`\"{}conservatory\char`\"{}, \char`\"{}lounge\char`\"{}, \char`\"{}kitchen\char`\"{}, \char`\"{}library\char`\"{}, \char`\"{}hall\char`\"{}, \char`\"{}study\char`\"{}, \char`\"{}bathroom\char`\"{}, \char`\"{}dining\+Room\char`\"{}, \char`\"{}billiard\+Room\char`\"{}\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_aa91484f3850dc7a90ca9d60ad76c618f}\label{state__machine_8py_aa91484f3850dc7a90ca9d60ad76c618f}} 
+list {\bfseries state\+\_\+machine.\+room1} = \mbox{[}-\/4, -\/3, -\/1, -\/4\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_aa0a6f9e321ad9341bbd17286f9e1430e}\label{state__machine_8py_aa0a6f9e321ad9341bbd17286f9e1430e}} 
+list {\bfseries state\+\_\+machine.\+room2} = \mbox{[}-\/4, 2, -\/3, 1\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a6d45f1bc10ea5b397eb31891a51bb43e}\label{state__machine_8py_a6d45f1bc10ea5b397eb31891a51bb43e}} 
+list {\bfseries state\+\_\+machine.\+room3} = \mbox{[}-\/4, 7, -\/1, 5\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a5a62dba749d2153586822731a520b407}\label{state__machine_8py_a5a62dba749d2153586822731a520b407}} 
+list {\bfseries state\+\_\+machine.\+room4} = \mbox{[}5, -\/7, 1, -\/8\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_ad32e28a61a65f9958703fd6bee873751}\label{state__machine_8py_ad32e28a61a65f9958703fd6bee873751}} 
+list {\bfseries state\+\_\+machine.\+room5} = \mbox{[}5, -\/3, 4, -\/4.\+5\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a761902f1d9e5ed033400ade9b5503696}\label{state__machine_8py_a761902f1d9e5ed033400ade9b5503696}} 
+list {\bfseries state\+\_\+machine.\+room6} = \mbox{[}5, 1, 5.\+5, 0\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a90cccbf998600dba4beb0f767a6c41fd}\label{state__machine_8py_a90cccbf998600dba4beb0f767a6c41fd}} 
+list {\bfseries state\+\_\+machine.\+rooms} = \mbox{[}room1, room2, room3, room4, room5, room6\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_add7ac89d3ee77647168ba902452dfb01}\label{state__machine_8py_add7ac89d3ee77647168ba902452dfb01}} 
+{\bfseries state\+\_\+machine.\+armor\+\_\+interface} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_afbc78f361a5fb51832abed3d6f97618f}\label{state__machine_8py_afbc78f361a5fb51832abed3d6f97618f}} 
+{\bfseries state\+\_\+machine.\+oracle\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_a014a3664f0cd343bdd7828cf650e2620}\label{state__machine_8py_a014a3664f0cd343bdd7828cf650e2620}} 
+{\bfseries state\+\_\+machine.\+pose\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_aecd4edd40cc81b9ba8aa4d4ca9f51559}\label{state__machine_8py_aecd4edd40cc81b9ba8aa4d4ca9f51559}} 
+{\bfseries state\+\_\+machine.\+comm\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_ad8919957b43d169e4e799a3fde84db34}\label{state__machine_8py_ad8919957b43d169e4e799a3fde84db34}} 
+{\bfseries state\+\_\+machine.\+room\+I\+D\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_a552cb14a092a4c44a3092b286def2ec4}\label{state__machine_8py_a552cb14a092a4c44a3092b286def2ec4}} 
+{\bfseries state\+\_\+machine.\+vel\+\_\+pub} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_a830d9d67188bc8cb7e44ae657dcada35}\label{state__machine_8py_a830d9d67188bc8cb7e44ae657dcada35}} 
+{\bfseries state\+\_\+machine.\+move\+\_\+base\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{state__machine_8py_aa2bd362ce58540214aebbe2c23fb14bb}\label{state__machine_8py_aa2bd362ce58540214aebbe2c23fb14bb}} 
+list {\bfseries state\+\_\+machine.\+hypotheses} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_adc5aef7efe88852223fa5374926b99b2}\label{state__machine_8py_adc5aef7efe88852223fa5374926b99b2}} 
+list {\bfseries state\+\_\+machine.\+hypo\+\_\+check} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a4795b098534045f34c5b0037ec6f0fa0}\label{state__machine_8py_a4795b098534045f34c5b0037ec6f0fa0}} 
+list {\bfseries state\+\_\+machine.\+complete\+\_\+hypotheses} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a0a88dacb1df9774d4a35bb692a4ad4d7}\label{state__machine_8py_a0a88dacb1df9774d4a35bb692a4ad4d7}} 
+list {\bfseries state\+\_\+machine.\+consistent\+\_\+hypotheses} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a92ab1a90367dc93dce97454b9afea2fa}\label{state__machine_8py_a92ab1a90367dc93dce97454b9afea2fa}} 
+list {\bfseries state\+\_\+machine.\+inconsistent\+\_\+hypotheses} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_aaf58524933f0c5a4b8f043fc5782856a}\label{state__machine_8py_aaf58524933f0c5a4b8f043fc5782856a}} 
+list {\bfseries state\+\_\+machine.\+guess} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a16d56f9e50e65548a89a495eab3fdda7}\label{state__machine_8py_a16d56f9e50e65548a89a495eab3fdda7}} 
+list {\bfseries state\+\_\+machine.\+wrong\+\_\+guess} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_ad25183469686dc51a473334f4349e572}\label{state__machine_8py_ad25183469686dc51a473334f4349e572}} 
+list {\bfseries state\+\_\+machine.\+right\+\_\+guess} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a9e0dec5e0457574297693dfb922fdb1c}\label{state__machine_8py_a9e0dec5e0457574297693dfb922fdb1c}} 
+list {\bfseries state\+\_\+machine.\+consistency\+\_\+index} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a943f6ff877111896429951b85c9e7609}\label{state__machine_8py_a943f6ff877111896429951b85c9e7609}} 
+string {\bfseries state\+\_\+machine.\+url} = \textquotesingle{}\textquotesingle{}
+\item 
+\mbox{\Hypertarget{state__machine_8py_ad0ececadf0e95e1be691a5602a7c0ffd}\label{state__machine_8py_ad0ececadf0e95e1be691a5602a7c0ffd}} 
+int {\bfseries state\+\_\+machine.\+elements} = 0
+\item 
+\mbox{\Hypertarget{state__machine_8py_aceadd62b21a9da17ff117b54972d5052}\label{state__machine_8py_aceadd62b21a9da17ff117b54972d5052}} 
+int {\bfseries state\+\_\+machine.\+last} = 0
+\item 
+\mbox{\Hypertarget{state__machine_8py_afa786bb33b86038b375f161069af4f3b}\label{state__machine_8py_afa786bb33b86038b375f161069af4f3b}} 
+bool {\bfseries state\+\_\+machine.\+consistent} = False
+\item 
+\mbox{\Hypertarget{state__machine_8py_a521c67ce5124cff88c558b80ab179120}\label{state__machine_8py_a521c67ce5124cff88c558b80ab179120}} 
+bool {\bfseries state\+\_\+machine.\+second\+\_\+round} = False
+\item 
+\mbox{\Hypertarget{state__machine_8py_add83a8dccd81726236df25392fef3a06}\label{state__machine_8py_add83a8dccd81726236df25392fef3a06}} 
+{\bfseries state\+\_\+machine.\+actual\+\_\+position} = Point()
+\item 
+\mbox{\Hypertarget{state__machine_8py_a81ffbe3d9e69ff56cc9d640c6de7b832}\label{state__machine_8py_a81ffbe3d9e69ff56cc9d640c6de7b832}} 
+{\bfseries state\+\_\+machine.\+x}
+\item 
+\mbox{\Hypertarget{state__machine_8py_aec5c2b3d31a0cff21276a25d744d29c6}\label{state__machine_8py_aec5c2b3d31a0cff21276a25d744d29c6}} 
+{\bfseries state\+\_\+machine.\+y}
+\item 
+\mbox{\Hypertarget{state__machine_8py_a35287b1d06959dbfd38e092195ba827d}\label{state__machine_8py_a35287b1d06959dbfd38e092195ba827d}} 
+int {\bfseries state\+\_\+machine.\+actual\+\_\+yaw} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+script that implements the state machine of the game. 
+
+\begin{DoxyAuthor}{Author}
+Serena Paneri 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+28/01/2023
+\end{DoxyDate}
+Subscribes to\+: ~\newline
+ /odom
+
+Publishes to\+: ~\newline
+ /cmd\+\_\+vel
+
+Serivces\+: ~\newline
+ None
+
+Client Services\+: ~\newline
+ armor\+\_\+interface\+\_\+srv /oracle\+\_\+solution comm arm\+\_\+pose room\+\_\+\+ID
+
+Action Services\+: ~\newline
+ move\+\_\+base
+
+Description\+: ~\newline
+ In this node there is a state machine built using the smach package. There are five different states in which the robot can be\+:
+\begin{DoxyItemize}
+\item Start\+Game\+: in this state, the dafult pose of the robot is set, the ontology is loaded, the T\+Box is uploaded, the individuals of each class are disjoint and the order of the room is randomized.
+\item Motion\+: in this state is implemented the motion of the robot within the rooms of the game thanks to move\+\_\+base, and also the motion to the oracle room. Here we have three outcomes meaning that three checks are perfomed. One checks if the robot has visited only one or both waypoint within a room, the second one checks if there are new consistent hypotheses, and in that case the robot should move to the oracle room, and finally the last is to see if the robot has already visited all the room of the game.
+\item Room\+: in this state the robot simulates the collection of hints, and to do that the robot assumes a specific pose thanks to moveit and start rotating in order to detect the aruco markers, from which the hints are retrieved.
+\item Complete\+: in this state, that is executed in each room of the game, the robot checks if there are, or not, new complete hypotheses. If there are then the robot should test their consistency, if there are not then the robot should keep searching for hints.
+\item Consistency\+: in this state the robot should check if there are new complete and consistent hypotheses. If there are then the robot should go to the oracle room to try its guessing, if instead the hypotheses are inconsistent then the robot should keep searching for hints.
+\item Oralce\+Room\+: in this final state the robot asks to the oracle if the complete and consistent hypotheses that it has found are the correct one. If it is then the game is finished, otherwise the robot restarts the process searching for new hints. 
+\end{DoxyItemize}
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{state__machine_8py_a860742753d94af2a31988f0d0fdb6ad7}\label{state__machine_8py_a860742753d94af2a31988f0d0fdb6ad7}} 
+\index{state\_machine.py@{state\_machine.py}!complete@{complete}}
+\index{complete@{complete}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{complete()}{complete()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+complete (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+It is the query command to retrieve an individual from a class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: res
+\end{DoxyReturn}
+This functions returns, if there are any, the individuals of the class C\+O\+M\+P\+L\+E\+T\+ED of the ontology. \mbox{\Hypertarget{state__machine_8py_a96909e78adbcfc2df77cc126fc7efcc0}\label{state__machine_8py_a96909e78adbcfc2df77cc126fc7efcc0}} 
+\index{state\_machine.py@{state\_machine.py}!disjoint\_individuals@{disjoint\_individuals}}
+\index{disjoint\_individuals@{disjoint\_individuals}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{disjoint\_individuals()}{disjoint\_individuals()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+disjoint\+\_\+individuals (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The disjoint\+\_\+individuals function disjoints the individuals of a class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This operation needs to be done in order to disjoint the individuals belonging to each class, from each other. \mbox{\Hypertarget{state__machine_8py_a4b53847ca13a533e54928a4ef6567f6e}\label{state__machine_8py_a4b53847ca13a533e54928a4ef6567f6e}} 
+\index{state\_machine.py@{state\_machine.py}!find\_string@{find\_string}}
+\index{find\_string@{find\_string}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{find\_string()}{find\_string()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+find\+\_\+string (\begin{DoxyParamCaption}\item[{}]{obj\+\_\+query }\end{DoxyParamCaption})}
+
+
+
+Function that \char`\"{}cleans\char`\"{} the url recieved by the cluedo ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & obj\+\_\+query \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: res
+\end{DoxyReturn}
+This function takes the string that is written as an url and remove that parl only leaving a part of the string that is the string of interest. ~\newline
+ \mbox{\Hypertarget{state__machine_8py_aa90c8bb6d9ce99baca2bf2f652e0be0a}\label{state__machine_8py_aa90c8bb6d9ce99baca2bf2f652e0be0a}} 
+\index{state\_machine.py@{state\_machine.py}!inconsistent@{inconsistent}}
+\index{inconsistent@{inconsistent}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{inconsistent()}{inconsistent()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+inconsistent (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+It is the query command to retrieve an individual from a class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: res
+\end{DoxyReturn}
+This functions returns, if there are any, the individuals of the class I\+N\+C\+O\+N\+S\+I\+S\+T\+E\+NT of the ontology. ~\newline
+ \mbox{\Hypertarget{state__machine_8py_af71fbc7bd46029d411e6accb7a8158e0}\label{state__machine_8py_af71fbc7bd46029d411e6accb7a8158e0}} 
+\index{state\_machine.py@{state\_machine.py}!list\_index@{list\_index}}
+\index{list\_index@{list\_index}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{list\_index()}{list\_index()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+list\+\_\+index (\begin{DoxyParamCaption}\item[{}]{list1,  }\item[{}]{list2 }\end{DoxyParamCaption})}
+
+
+
+Function that returns the indixes in a list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & list1, list2 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: index, \mbox{[}\mbox{]}
+\end{DoxyReturn}
+This function is used to search the elements of a list2 in a list1 and return their indexes. ~\newline
+ \mbox{\Hypertarget{state__machine_8py_a41ee7e13f04ccf97f0ff9e976723b1c7}\label{state__machine_8py_a41ee7e13f04ccf97f0ff9e976723b1c7}} 
+\index{state\_machine.py@{state\_machine.py}!load@{load}}
+\index{load@{load}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{load()}{load()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+load (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The load function loads the cluedo\+\_\+ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function is used to load the cluedo\+\_\+ontology. \mbox{\Hypertarget{state__machine_8py_a5c680ce705e6052fa07c6cece21743d0}\label{state__machine_8py_a5c680ce705e6052fa07c6cece21743d0}} 
+\index{state\_machine.py@{state\_machine.py}!main@{main}}
+\index{main@{main}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+This is the main function of the node state\+\_\+machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+In the main function the node state\+\_\+machine is initialized and here the service are called as well as the odom subscriber, the cmd\+\_\+vel publisher and move\+\_\+base. \mbox{\Hypertarget{state__machine_8py_a1ba59db6527eece01290c64ba0fc5055}\label{state__machine_8py_a1ba59db6527eece01290c64ba0fc5055}} 
+\index{state\_machine.py@{state\_machine.py}!odom\_callback@{odom\_callback}}
+\index{odom\_callback@{odom\_callback}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{odom\_callback()}{odom\_callback()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+odom\+\_\+callback (\begin{DoxyParamCaption}\item[{}]{msg }\end{DoxyParamCaption})}
+
+
+
+Callback function of the subscriber to odom. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & msg \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This is the callback function of the subscriber to the topic odom and it is used to know the actual position and orientation of the robot in the space. \mbox{\Hypertarget{state__machine_8py_a4544702e36593af9cad4ceab4e08d11e}\label{state__machine_8py_a4544702e36593af9cad4ceab4e08d11e}} 
+\index{state\_machine.py@{state\_machine.py}!reasoner@{reasoner}}
+\index{reasoner@{reasoner}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{reasoner()}{reasoner()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+reasoner (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The reasoner of the ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function implements the reasoner of the ontology that needs to be started in order to update the knowledge of the ontology. \mbox{\Hypertarget{state__machine_8py_a6458e29766572d1f19d2852b17c504d6}\label{state__machine_8py_a6458e29766572d1f19d2852b17c504d6}} 
+\index{state\_machine.py@{state\_machine.py}!retrieve\_hypo@{retrieve\_hypo}}
+\index{retrieve\_hypo@{retrieve\_hypo}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{retrieve\_hypo()}{retrieve\_hypo()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+retrieve\+\_\+hypo (\begin{DoxyParamCaption}\item[{}]{prop\+\_\+name,  }\item[{}]{ind\+\_\+name }\end{DoxyParamCaption})}
+
+
+
+Function that retrieves the object properties of an individual from the cluedo\+\_\+ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & prop\+\_\+name, ind\+\_\+name \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: res
+\end{DoxyReturn}
+This function retrives the object property of an individual from the cluedo\+\_\+ontology. The ind\+\_\+name stands for the name of the individuals whose objects propetries (prop\+\_\+name) you want collect. \mbox{\Hypertarget{state__machine_8py_a24100a20571e27ebd98cd4936fd5ea35}\label{state__machine_8py_a24100a20571e27ebd98cd4936fd5ea35}} 
+\index{state\_machine.py@{state\_machine.py}!save@{save}}
+\index{save@{save}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{save()}{save()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+save (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+It saves the changes on a new ontology file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This functions saves the ontology in a new file, also saving the inferences. \mbox{\Hypertarget{state__machine_8py_a804bc0879689ab5c7587bde98caa0831}\label{state__machine_8py_a804bc0879689ab5c7587bde98caa0831}} 
+\index{state\_machine.py@{state\_machine.py}!search\_list@{search\_list}}
+\index{search\_list@{search\_list}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{search\_list()}{search\_list()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+search\+\_\+list (\begin{DoxyParamCaption}\item[{}]{list1,  }\item[{}]{list2 }\end{DoxyParamCaption})}
+
+
+
+Function that checks if elements of list2 exist in list1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & list1, list2 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: True, False
+\end{DoxyReturn}
+This function is used to check if the elements in the list2 are present or not in the list1. \mbox{\Hypertarget{state__machine_8py_a8d44b7b6eb4696cde4e9d500e189975d}\label{state__machine_8py_a8d44b7b6eb4696cde4e9d500e189975d}} 
+\index{state\_machine.py@{state\_machine.py}!tbox@{tbox}}
+\index{tbox@{tbox}!state\_machine.py@{state\_machine.py}}
+\doxysubsubsection{\texorpdfstring{tbox()}{tbox()}}
+{\footnotesize\ttfamily def state\+\_\+machine.\+tbox (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Function to upload all the individuals. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function is used to upload all the individuals of all classes in the ontology. 

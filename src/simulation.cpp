@@ -26,7 +26,9 @@
 *     None
 *
 * Description: <BR>
-*  
+*     In this node the hints of the game are randomly generated and they are associated to each 
+*     marker in the cluedo game. Moreove it is implemented the oracle_solution services that
+*     check the ID of the current hypothesis with the winning one that is randomly selected.
 */
 
 #include <ros/ros.h>
@@ -67,7 +69,7 @@ exprob_ass2::ErlOracle oracle_msgs[30];
  
 
 /**
-* \brief provides a service to check the winning ID
+* \brief callback function of the service oracle_solution
 * \param req: request from the client
 * \param res: response from the service oracle_solution
 * \return true
@@ -80,6 +82,15 @@ bool oracleService(exprob_ass2::Oracle::Request &req, exprob_ass2::Oracle::Respo
 		return true;
 	}
 
+
+/**
+* \brief callback function of the oracle_hint service
+* \param req: MarkerRequest
+* \param res: MarkerResponse
+* \return true
+*
+* This function converts the ID of the aruco marker into cluedo hints.
+*/
 bool oracleCallback(exprob_ass3::Marker::Request &req, exprob_ass3::Marker::Response &res)
 {
 	if((req.markerId >= 11) && (req.markerId <= 40)){
@@ -94,6 +105,16 @@ bool oracleCallback(exprob_ass3::Marker::Request &req, exprob_ass3::Marker::Resp
 	return true;
 } 
 
+
+/**
+* \brief Main function of the simulation node.
+* \param None
+* \return 0
+*
+* This is the main function of the simulation node where the node is initialized and the oracle_hint and
+* oracle_solution services are implemented. In this main function the hints of the game are randomly 
+* generated and they are associated to each marker in the cluedo game.
+*/
 int main(int argc, char **argv)
 {
 

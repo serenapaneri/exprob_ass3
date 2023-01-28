@@ -1,0 +1,237 @@
+\hypertarget{hints_8py}{}\doxysection{scripts/hints.py File Reference}
+\label{hints_8py}\index{scripts/hints.py@{scripts/hints.py}}
+
+
+script that implements the hints reciever of the game.  
+
+
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{hints_8py_aa969150ed4a6ff0e02d69435f2f1a332}{hints.\+com}} (req)
+\begin{DoxyCompactList}\small\item\em Callback function of the comm service. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_ac1179a751ba85b772734eda3f1016c28}{hints.\+Room\+I\+D\+\_\+handle}} (req)
+\begin{DoxyCompactList}\small\item\em Callback function of the Room\+ID service. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_a689c044cf0fe2ef00e485fb78b7a88aa}{hints.\+id\+\_\+callback}} (data)
+\begin{DoxyCompactList}\small\item\em Callback function of the subcriber to aruco\+\_\+marker\+\_\+publisher/\+ID. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_a9e4d30475608e913d2987cef2d6e4061}{hints.\+search}} (list\+\_\+, element)
+\begin{DoxyCompactList}\small\item\em This function search an element in a list. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_ad0e7dd524527dad771a1b3ae8ebd27f8}{hints.\+upload\+\_\+hint}} (I\+D\+\_\+, key\+\_\+, value\+\_\+)
+\begin{DoxyCompactList}\small\item\em Function to upload the hints recieved in the cluedo\+\_\+ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_a1aea3fa144bb17a5d81394e8af5158c1}{hints.\+reasoner}} ()
+\begin{DoxyCompactList}\small\item\em The reasoner of the ontology. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_a13974fb07eab51b0a053f48c6faed3c2}{hints.\+apply\+\_\+}} ()
+\begin{DoxyCompactList}\small\item\em It is the apply command of armor. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{hints_8py_aef6aba64ed2648976f2dadd9df18e313}{hints.\+main}} ()
+\begin{DoxyCompactList}\small\item\em Main function of the hints node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{hints_8py_a3e2b246e4447c83c133b937757d97927}\label{hints_8py_a3e2b246e4447c83c133b937757d97927}} 
+{\bfseries hints.\+armor\+\_\+interface} = None
+\item 
+\mbox{\Hypertarget{hints_8py_aa0b8dc8c6a26e553ea2fac16ebb416dd}\label{hints_8py_aa0b8dc8c6a26e553ea2fac16ebb416dd}} 
+{\bfseries hints.\+hint\+\_\+client} = None
+\item 
+\mbox{\Hypertarget{hints_8py_a90740a86c1b10e2b1f8ec0da7aa37c92}\label{hints_8py_a90740a86c1b10e2b1f8ec0da7aa37c92}} 
+{\bfseries hints.\+comm\+\_\+srv} = None
+\item 
+\mbox{\Hypertarget{hints_8py_a2d1bc334ac86bcaeb8367cfa561e607e}\label{hints_8py_a2d1bc334ac86bcaeb8367cfa561e607e}} 
+{\bfseries hints.\+I\+D\+\_\+sub\+\_\+} = None
+\item 
+\mbox{\Hypertarget{hints_8py_a09b8a7ec94361c38d868911dcf364da6}\label{hints_8py_a09b8a7ec94361c38d868911dcf364da6}} 
+{\bfseries hints.\+roomid\+\_\+srv} = None
+\item 
+\mbox{\Hypertarget{hints_8py_a86d4e682dcb220750bbd3bdcdf5dfed2}\label{hints_8py_a86d4e682dcb220750bbd3bdcdf5dfed2}} 
+bool {\bfseries hints.\+start} = False
+\item 
+\mbox{\Hypertarget{hints_8py_ac82e89897bbe502e4593dcd0ede24f77}\label{hints_8py_ac82e89897bbe502e4593dcd0ede24f77}} 
+list {\bfseries hints.\+I\+Ds} = \mbox{[}0\mbox{]}
+\item 
+\mbox{\Hypertarget{hints_8py_a67645ce8d9682225a2c8b35f8da1f84a}\label{hints_8py_a67645ce8d9682225a2c8b35f8da1f84a}} 
+list {\bfseries hints.\+room\+\_\+\+I\+Ds} = \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+script that implements the hints reciever of the game. 
+
+\begin{DoxyAuthor}{Author}
+Serena Paneri 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+28/01/2023
+\end{DoxyDate}
+Subscribes to\+: ~\newline
+ /aruco\+\_\+marker\+\_\+publisher/\+ID
+
+Publishes to\+: ~\newline
+ None
+
+Serivces\+: ~\newline
+ comm room\+\_\+\+ID
+
+Client Services\+: ~\newline
+ armor\+\_\+interface\+\_\+srv /oracle\+\_\+hint
+
+Action Services\+: ~\newline
+ None
+
+Description\+: ~\newline
+ In this node is implemented the hints reciever of the cluedo game. In particular, when the state\+\_\+machine commands to start recieving hints the hints are first by selecting the not malformed ones and those are then uploaded in the ontology. The malformed ones are simply discarded. In the meanwhile the I\+Ds of that hints recieved are stored and sent to the state machine. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{hints_8py_a13974fb07eab51b0a053f48c6faed3c2}\label{hints_8py_a13974fb07eab51b0a053f48c6faed3c2}} 
+\index{hints.py@{hints.py}!apply\_@{apply\_}}
+\index{apply\_@{apply\_}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{apply\_()}{apply\_()}}
+{\footnotesize\ttfamily def hints.\+apply\+\_\+ (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+It is the apply command of armor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function apply the changes done to the ontology. ~\newline
+ \mbox{\Hypertarget{hints_8py_aa969150ed4a6ff0e02d69435f2f1a332}\label{hints_8py_aa969150ed4a6ff0e02d69435f2f1a332}} 
+\index{hints.py@{hints.py}!com@{com}}
+\index{com@{com}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{com()}{com()}}
+{\footnotesize\ttfamily def hints.\+com (\begin{DoxyParamCaption}\item[{}]{req }\end{DoxyParamCaption})}
+
+
+
+Callback function of the comm service. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & req, Command\+Request \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: start
+\end{DoxyReturn}
+This function recieves the command from the client in the state\+\_\+machine node. When the client commands to start then the start variable is set to True and when it commands to stop, the start variable is set to false. \mbox{\Hypertarget{hints_8py_a689c044cf0fe2ef00e485fb78b7a88aa}\label{hints_8py_a689c044cf0fe2ef00e485fb78b7a88aa}} 
+\index{hints.py@{hints.py}!id\_callback@{id\_callback}}
+\index{id\_callback@{id\_callback}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{id\_callback()}{id\_callback()}}
+{\footnotesize\ttfamily def hints.\+id\+\_\+callback (\begin{DoxyParamCaption}\item[{}]{data }\end{DoxyParamCaption})}
+
+
+
+Callback function of the subcriber to aruco\+\_\+marker\+\_\+publisher/\+ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & data \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: I\+Ds
+\end{DoxyReturn}
+This function collect the ID of the aruco marker that have been detected. \mbox{\Hypertarget{hints_8py_aef6aba64ed2648976f2dadd9df18e313}\label{hints_8py_aef6aba64ed2648976f2dadd9df18e313}} 
+\index{hints.py@{hints.py}!main@{main}}
+\index{main@{main}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily def hints.\+main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Main function of the hints node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+In the main function all the service comm and room\+ID are implemented as well as the clients to A\+R\+M\+OR and oracle\+\_\+hint. Moreover there is also the subscriber to the aruco\+\_\+marker\+\_\+publisher. In this node when the state\+\_\+machine commands to start recieving hints the hints are first filtered by the fact of being malformed or not, and if they are not they are uploaded in the ontology. In the meanwhile the I\+Ds of that hints recieved are stored and sent to the state machine. \mbox{\Hypertarget{hints_8py_a1aea3fa144bb17a5d81394e8af5158c1}\label{hints_8py_a1aea3fa144bb17a5d81394e8af5158c1}} 
+\index{hints.py@{hints.py}!reasoner@{reasoner}}
+\index{reasoner@{reasoner}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{reasoner()}{reasoner()}}
+{\footnotesize\ttfamily def hints.\+reasoner (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The reasoner of the ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function implements the reasoner of the ontology that needs to be started in order to update the knowledge of the ontology. \mbox{\Hypertarget{hints_8py_ac1179a751ba85b772734eda3f1016c28}\label{hints_8py_ac1179a751ba85b772734eda3f1016c28}} 
+\index{hints.py@{hints.py}!RoomID\_handle@{RoomID\_handle}}
+\index{RoomID\_handle@{RoomID\_handle}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{RoomID\_handle()}{RoomID\_handle()}}
+{\footnotesize\ttfamily def hints.\+Room\+I\+D\+\_\+handle (\begin{DoxyParamCaption}\item[{}]{req }\end{DoxyParamCaption})}
+
+
+
+Callback function of the Room\+ID service. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & req, Room\+I\+D\+Request \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: res, Room\+I\+D\+Response
+\end{DoxyReturn}
+This function simply sends the ID found within a room to the state\+\_\+machine node. ~\newline
+ \mbox{\Hypertarget{hints_8py_a9e4d30475608e913d2987cef2d6e4061}\label{hints_8py_a9e4d30475608e913d2987cef2d6e4061}} 
+\index{hints.py@{hints.py}!search@{search}}
+\index{search@{search}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{search()}{search()}}
+{\footnotesize\ttfamily def hints.\+search (\begin{DoxyParamCaption}\item[{}]{list\+\_\+,  }\item[{}]{element }\end{DoxyParamCaption})}
+
+
+
+This function search an element in a list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & list\+\_\+, element \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: True, False
+\end{DoxyReturn}
+This functions checks if a specific element is present (True) or not (False) in a list. ~\newline
+ \begin{DoxyVerb}  This function check if an element is present or not into a list
+\end{DoxyVerb}
+ \mbox{\Hypertarget{hints_8py_ad0e7dd524527dad771a1b3ae8ebd27f8}\label{hints_8py_ad0e7dd524527dad771a1b3ae8ebd27f8}} 
+\index{hints.py@{hints.py}!upload\_hint@{upload\_hint}}
+\index{upload\_hint@{upload\_hint}!hints.py@{hints.py}}
+\doxysubsubsection{\texorpdfstring{upload\_hint()}{upload\_hint()}}
+{\footnotesize\ttfamily def hints.\+upload\+\_\+hint (\begin{DoxyParamCaption}\item[{}]{I\+D\+\_\+,  }\item[{}]{key\+\_\+,  }\item[{}]{value\+\_\+ }\end{DoxyParamCaption})}
+
+
+
+Function to upload the hints recieved in the cluedo\+\_\+ontology. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & I\+D\+\_\+, key\+\_\+, value\+\_\+ \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This function is used to upload every hints recieved from the environment in the cluedo\+\_\+ontology. ~\newline
+ 

@@ -7,40 +7,55 @@
 #
 # \author Serena Paneri
 # \version 1.0
-# \date 11/11/2022
+# \date 28/01/2023
 # \details
 #
 # Subscribes to: <BR>
-#     None
+#     /odom
 #
 # Publishes to: <BR>
-#     None
+#     /cmd_vel
 #
 # Serivces: <BR>
 #     None
 #
 # Client Services: <BR>
 #     armor_interface_srv
+#     /oracle_solution
+#     comm
+#     arm_pose
+#     room_ID
 #
 # Action Services: <BR>
-#     None
+#     move_base
 #
 # Description: <BR>
 #     In this node there is a state machine built using the smach package.
-#     There are three different states in which the robot can be:
-#     - Motion: in this state there is the simulation of the motion of the robot within the
-#               rooms of the game. Here there are two types of check. In the first one the
-#               number of hints collected is evaluated. If it is not sufficienet the robot
-#               keeps moving, instead if they are enough, there is a second check.
-#               This check evaluates if the hypothesis composed by the hints found is 
-#               a complete and consistent hypothesis. If it is not the robot should restart
-#               again the process.
-#     - Room: in this state the robot simulates the collection of hints, a new hint each
-#             time it is in a new room. 
-#     - Oralce: in this final state the robot asks to the oracle if the complete and 
-#               consistent hypothesis that it has found is the correct one. If it is then
-#               the game is finished, otherwise the robot restarts the process searching for
-#               new hints.
+#     There are five different states in which the robot can be:
+#     - StartGame: in this state, the dafult pose of the robot is set, the ontology is loaded,
+#                  the TBox is uploaded, the individuals of each class are disjoint and the
+#                  order of the room is randomized. 
+#     - Motion: in this state is implemented the motion of the robot within the rooms of the game
+#               thanks to move_base, and also the motion to the oracle room. 
+#               Here we have three outcomes meaning that three checks are perfomed.
+#               One checks if the robot has visited only one or both waypoint within a room, the
+#               second one checks if there are new consistent hypotheses, and in that case the 
+#               robot should move to the oracle room, and finally the last is to see if the 
+#               robot has already visited all the room of the game.
+#     - Room: in this state the robot simulates the collection of hints, and to do that the robot
+#             assumes a specific pose thanks to moveit and start rotating in order to detect the 
+#             aruco markers, from which the hints are retrieved. 
+#     - Complete: in this state, that is executed in each room of the game, the robot checks if there
+#                 are, or not, new complete hypotheses. If there are then the robot should test their
+#                 consistency, if there are not then the robot should keep searching for hints.
+#     - Consistency: in this state the robot should check if there are new complete and consistent 
+#                    hypotheses. If there are then the robot should go to the oracle room to try its
+#                    guessing, if instead the hypotheses are inconsistent then the robot should keep 
+#                    searching for hints.
+#     - OralceRoom: in this final state the robot asks to the oracle if the complete and 
+#                   consistent hypotheses that it has found are the correct one. If it is then
+#                   the game is finished, otherwise the robot restarts the process searching for
+#                   new hints.
 
 
 import rospy
@@ -89,7 +104,6 @@ vel_pub = None
 # move_base client
 move_base_client = None
 
-consistent = False
 hypotheses = []
 hypo_check = []
 complete_hypotheses = []
@@ -98,19 +112,28 @@ inconsistent_hypotheses = []
 guess = []
 wrong_guess = []
 right_guess = []
+consistency_index = []
 
 url = ''
 elements = 0
 last = 0
+consistent = False
+second_round = False
 
+# robot state variables
 actual_position = Point()
 actual_position.x = 0
 actual_position.y = 0
 actual_yaw = 0 
 
-second_round = False
 
-
+##
+# \brief Callback function of the subscriber to odom.
+# \param: msg
+# \return: None
+#
+# This is the callback function of the subscriber to the topic odom and it is used to know the actual position
+# and orientation of the robot in the space.
 def odom_callback(msg):
     global actual_position, actual_yaw
     
@@ -124,6 +147,7 @@ def odom_callback(msg):
         msg.pose.pose.orientation.w)
     euler = transformations.euler_from_quaternion(quaternion)
     actual_yaw = euler[2]
+
 
 ##
 # \brief The load function loads the cluedo_ontology.
@@ -363,7 +387,12 @@ def list_index(list1, list2):
 # \return: None
 #
 # 
-# The only outcomes is motion.
+# This class should initialized all the things needed to start the investigation of the cluedo game.
+# Here the robot assumes the default position, thanks to moveit, the ontology is loaded, all the 
+# individuals of the game are uploaded, then disjoint from each other and feed to the reasoner. 
+# Then the rooms of the game are randomized.
+# Here there is only one outcome that is motion, in order to make the robot go to the various room,
+# searching for hints.
 class StartGame(smach.State):
 
     def __init__(self):
@@ -408,12 +437,15 @@ class StartGame(smach.State):
 #
 # This class should execute the movement of the robot between the various rooms of the cluedo game.
 # If there are no new complete and consistent hypotheses, then the robot should keep going searching
-# new hints in other rooms.
+# new hints in other rooms, and the movement of the robot is implemented thanks to the move_base package.
 # If, instead, there is actually a new complete and consistent hypothesis the robot can go to the oracle
-# room trying its guessing.
-# So, there are two outcomes:
+# room, trying its guessing.
+# There can be also the possibility that the robot never find the correct solution and, when there are
+# no more rooms to be visited the game finish.
+# So, there are three outcomes:
 # - enter room, if the robot is still collecting hints
-# - go_oracle, if the hypothesis formulated is complete and consistent  
+# - go_oracle, if the hypothesis formulated is complete and consistent
+# - game_finished, if there are no more rooms to visit. 
 class Motion(smach.State):
 
     def __init__(self):
@@ -423,8 +455,10 @@ class Motion(smach.State):
     def execute(self, userdata):
     
         global consistent, rooms, move_base_client, actual_position, actual_yaw, second_round
+        # move base 
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = 'map'
+        
         if consistent == True:
             # if there is at least one consistent hypothesis the robot goes to the oracle
             goal.target_pose.pose.position.x = 0
@@ -434,6 +468,7 @@ class Motion(smach.State):
             move_base_client.wait_for_server()
             move_base_client.send_goal(goal)
             
+            # do nothing until the robot reaches the goal position
             while ((actual_position.x - 0)*(actual_position.x - 0) + (actual_position.y - (-1))*(actual_position.y - (-1))) > 0.05:
                 time.sleep(0.1)
             
@@ -441,9 +476,11 @@ class Motion(smach.State):
             print('The robot is going to the oracle room')
             return 'go_oracle'
         else:
+            # if the robot still need to visit rooms
             if rooms:
                 print('The robot is searching for hints')
                 # going to a random room
+                # visiting the first waypoint of the room
                 if second_round == False:
                     print('Going to: [{}, {}]'.format(rooms[-1][0], rooms[-1][1]))
                     goal.target_pose.pose.position.x = rooms[-1][0]
@@ -451,10 +488,13 @@ class Motion(smach.State):
                     goal.target_pose.pose.orientation.w = 1
                     move_base_client.wait_for_server()
                     move_base_client.send_goal(goal)
+                    
+                    # do nothing until the robot reaches the goal position
                     while ((actual_position.x - rooms[-1][0])*(actual_position.x - rooms[-1][0]) + (actual_position.y - rooms[-1][1])*(actual_position.y - rooms[-1][1])) > 0.05:
                         time.sleep(0.1)
                     print('Start collecting hints')
             
+                # visiting the second waypoint of the room
                 if second_round == True:
                     print('Going to: [{}, {}]'.format(rooms[-1][2], rooms[-1][3]))
                     goal.target_pose.pose.position.x = rooms[-1][2]
@@ -462,13 +502,18 @@ class Motion(smach.State):
                     goal.target_pose.pose.orientation.w = 1
                     move_base_client.wait_for_server()
                     move_base_client.send_goal(goal)
+                    
+                    # do nothing until the robot reaches the goal position
                     while ((actual_position.x - rooms[-1][2])*(actual_position.x - rooms[-1][2]) + (actual_position.y - rooms[-1][3])*(actual_position.y - rooms[-1][3])) > 0.05:
                         time.sleep(0.1)
+                    # remove the coordinates of the actual room
                     rooms.pop()
                   
                 move_base_client.cancel_all_goals()
                 return 'enter_room'
+            # if the robot already visited all the rooms
             else:
+                # save the ontology
                 save()
                 return 'game_finished'
 
@@ -479,7 +524,13 @@ class Motion(smach.State):
 # \param: None
 # \return: None
 #
-#      
+# In this class the robot should collect the hints needed to form hypotheses.
+# What it does is to make the robot assume the low_detection position, implemented with moveit and
+# then makes the robot rotate around its yaw angle, to make a quick scan of the room and be able
+# to detect the aruco markers in order to retrieve the hints.
+# There are two outcomes:
+# - complete, if the robot has already visited the two waypoints
+# - motion, if the robot visited just the first waypoint.     
 class Room(smach.State):
 
     def __init__(self):
@@ -509,16 +560,32 @@ class Room(smach.State):
         # makes the robot assuming the default position
         pose_client('default')
         
+        # if the robot is at the fist waypoint
         if second_round == False:
             second_round = True
             return 'motion'
+        # if the robot is at the second waypoint
         if second_round == True:
             second_round = False
             print('Finish collecting hints')
             return 'complete'
         
         
-                
+##
+# \brief Class Complete of the state_machine.
+# \param: None
+# \return: None
+#
+# This class is executed everytime the robot finish to explore the current room. In this class
+# the completeness of the hypothesis collected until that moment is checked. 
+# Of course, the already checked hypotheses, are no longer taken in exam and the code is structured
+# to handle multiple complete hypotheses at one time, since it can happen.
+# If there is at least one new complete hypothesis, then the robot should then check the consistency
+# of that hypothesis, if there are not the robot goes to another room in order to collect more hints to
+# try to form a complete hypothesis.
+# There are two outcomes:
+# - consistency, if the robot in that room find at least a complete hypothesis
+# - motion, if there are not new complete hypotheses.             
 class Complete(smach.State):
 
     def __init__(self):
@@ -559,7 +626,7 @@ class Complete(smach.State):
         
                 iscomplete = complete()
                 time.sleep(1)
-                print(iscomplete.queried_objects)
+
                 # if the list of queried object of the class COMPLETED is empty
                 if len(iscomplete.queried_objects) == 0:
                     print('The {} is uncomplete'.format(item))
@@ -575,7 +642,7 @@ class Complete(smach.State):
                         time.sleep(1)
                         # save the new complete hypothesis
                         complete_hypotheses.append(item)  
-                        
+        # if the current hypotheses have already been checked               
         else:
             print('No new complete hypotheses')               
         
@@ -586,6 +653,7 @@ class Complete(smach.State):
             # empty hypotheses
             hypotheses.clear()
             return 'consistency'
+        # if there are not
         else:
             print('No new complete hypotheses to check')
             time.sleep(1)
@@ -593,7 +661,19 @@ class Complete(smach.State):
             hypotheses.clear()
             return 'motion'        
 
-        
+
+##
+# \brief Class Consistency of the state_machine.
+# \param: None
+# \return: None
+#
+# This class is executed everytime a new complete hypothesis has been found. In this class
+# the consistency of the hypothesis collected until that moment is checked. 
+# Of course, the already checked hypotheses, are no longer taken in exam and the code is structured
+# to handle multiple consistent hypotheses at one time, since it can happen.
+# If there is at least one new consistent hypothesis, then the robot should go to the oracle trying its guessing.
+# There is only one outcome that is motion, that allows to the robot to go to the oracle, if a new complete and
+# consistent hypothesis is found, if it's not to go searching new hints.      
 class Consistency(smach.State):
 
     def __init__(self):
@@ -602,48 +682,41 @@ class Consistency(smach.State):
         
     def execute(self, userdata):
     
-        global consistent, complete_hypotheses, consistent_hypotheses, inconsistent_hypotheses, elements, hypo_check, last, url
+        global consistent, complete_hypotheses, consistent_hypotheses, inconsistent_hypotheses, elements, hypo_check, last, url, consistency_index
         # updating the threshold 
         elements = len(complete_hypotheses)
                
         print('Checking if there is one consistent hypothesis')
         time.sleep(1)
         
-        print(consistent_hypotheses)
-        print(inconsistent_hypotheses)
         # checking if the hypotheses had already been checked
         indexes_cons = list_index(complete_hypotheses, consistent_hypotheses)
         indexes_incons = list_index(complete_hypotheses, inconsistent_hypotheses)
         
+        consistency_index.extend(indexes_cons)
+        consistency_index.extend(indexes_incons)
+        
         # create a new list containing all the elements of complete_hypotheses
         hypo_check.extend(complete_hypotheses)
         
-        print(hypo_check)
-        
-        indexes_cons.sort(reverse = True)
-        print(indexes_cons)
-        indexes_incons.sort(reverse = True)
-        print(indexes_cons)
+        consistency_index.sort(reverse = True)
         
          # removing the hypotheses that have already been checked
-        if indexes_cons:
-            for i in indexes_cons:
+        if consistency_index:
+            for i in consistency_index:
                 hypo_check.pop(i)
-                
-        if indexes_incons:
-            for i in indexes_incons:
-                hypo_check.pop(i)
-                
-        print(hypo_check)
+
+        consistency_index.clear()
         
         # checking the consistency of the hypotheses not already checked    
         for item in hypo_check:
             url = '<http://www.emarolab.it/cluedo-ontology#{}>'.format(item)
         
             isinconsistent = inconsistent()
-            print(isinconsistent.queried_objects)
+
+            # if the list of queried object of the class COMPLETED is not empty
             if len(isinconsistent.queried_objects) != 0:
-                # objects of the class INCONSISTENT
+                # checking if the current hypothesis is present or not in the list of queried objects of the class INCONSISTENT
                 if url in isinconsistent.queried_objects:
                     print('The {} is inconsistent'.format(item))
                     time.sleep(1)
@@ -654,6 +727,7 @@ class Consistency(smach.State):
                     print('The robot is ready to go to the oracle')
                     time.sleep(1)
                     consistent_hypotheses.append(item)
+            # if the list of queried object of the class INCONSISTENT is empty
             elif len(isinconsistent.queried_objects) == 0:
                 print('The {} is complete and consistent'.format(item))
                 time.sleep(1)
@@ -683,16 +757,18 @@ class Consistency(smach.State):
 # \param: None
 # \return: None
 #
-# This class should simulate what happens when the robot has collected all the hints that forms
-# a complete and consistent hypothesis, and it tries its guess.
+# This class is executed when the robot has collected all the hints that forms a complete and
+# consistent hypothesis, and it tries its guess.
 # This class should inform the robot if the hypothesis found is the winning one or not, and this
-# is done thanks to the oracle_service that checks the ID of the hypothesis of the robot with
+# is done thanks to the oracle service that checks the ID of the hypothesis of the robot with
 # the winning one.
 # If the hypothesis is correct then the game is finished. If it is not then the robot should
 # restart searching for new hints and repeat all the process.
+# Of course, the already checked hypotheses, are no longer taken in exam and the code is structured
+# to handle multiple guesses at one time, since it can happen.
 # Here we have two outcomes:
 # - game_finished, if the hypothesis found is the correct one
-# - motion, if the hypothesis found is wrong.     
+# - motion, if the hypothesis found is wrong.
 class OracleRoom(smach.State):
 
     def __init__(self):
@@ -706,13 +782,16 @@ class OracleRoom(smach.State):
         print('The robot is inside the oracle rooom')
         time.sleep(3)
         
+        # updating the threshold
         last = len(consistent_hypotheses)
+        # setting consistent to false
         consistent = False
         
         # waiting for the service that gives the ID of the winning hypothesis
         rospy.wait_for_service('/oracle_solution')
         
         print('Oracle: "Name your guess"')
+        # checking if the hypotheses had already been checked
         indexes_guess = list_index(consistent_hypotheses, wrong_guess)
         
         guess.extend(consistent_hypotheses)
@@ -721,10 +800,9 @@ class OracleRoom(smach.State):
         if indexes_guess:
             for g in indexes_guess:
                 guess.pop(g)
-        
-        print(guess)
+
         for item in guess:
-            # retrieving the current hypothesis
+            # retrieving the current hypotheses
             who_url = retrieve_hypo('who', item)
             what_url = retrieve_hypo('what', item)
             where_url = retrieve_hypo('where', item)
@@ -743,7 +821,6 @@ class OracleRoom(smach.State):
         
             # converting the string into an integer
             current_ID = int(cur_ID)
-            print(current_ID)
         
             print('{} with the {} in the {}'.format(who, what, where))
             time.sleep(1)
@@ -756,11 +833,13 @@ class OracleRoom(smach.State):
             # otherwise if they are not the same   
             else:
                 wrong_guess.append(item)
-                  
+        
+        # if the current hypothesis is the winning one         
         if right_guess:
             print('Yes, you guessed right!')
             save()
             return 'game_finished'
+        # if instead is not the winning one
         else:
             print('No you are wrong, maybe next time you will have better luck')
             guess.clear()
@@ -774,7 +853,7 @@ class OracleRoom(smach.State):
 # \return: None
 #
 # In the main function the node state_machine is initialized and here the service are called
-# as well as the hint subscriber.
+# as well as the odom subscriber, the cmd_vel publisher and move_base.
 def main():
 
     global armor_interface, oracle_client, pose_client, roomID_client, comm_client, vel_pub, move_base_client

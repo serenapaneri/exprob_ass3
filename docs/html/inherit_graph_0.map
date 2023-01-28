@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,132,61,159"/>
+<area shape="rect" id="node2" href="$classstate__machine_1_1_complete.html" title="Class Complete of the state_machine." alt="" coords="118,5,303,32"/>
+<area shape="rect" id="node3" href="$classstate__machine_1_1_consistency.html" title="Class Consistency of the state_machine." alt="" coords="110,56,311,83"/>
+<area shape="rect" id="node4" href="$classstate__machine_1_1_motion.html" title="Class Motion of the state_machine." alt="" coords="127,107,294,133"/>
+<area shape="rect" id="node5" href="$classstate__machine_1_1_oracle_room.html" title="Class Oracle of the state_machine." alt="" coords="109,157,312,184"/>
+<area shape="rect" id="node6" href="$classstate__machine_1_1_room.html" title="Class Room of the state_machine." alt="" coords="131,208,291,235"/>
+<area shape="rect" id="node7" href="$classstate__machine_1_1_start_game.html" title="Class StartGame of the state_machine." alt="" coords="115,259,307,285"/>
+</map>

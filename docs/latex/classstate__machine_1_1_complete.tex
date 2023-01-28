@@ -1,0 +1,59 @@
+\hypertarget{classstate__machine_1_1_complete}{}\doxysection{state\+\_\+machine.\+Complete Class Reference}
+\label{classstate__machine_1_1_complete}\index{state\_machine.Complete@{state\_machine.Complete}}
+
+
+Class \mbox{\hyperlink{classstate__machine_1_1_complete}{Complete}} of the state\+\_\+machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+machine.\+Complete\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=219pt]{classstate__machine_1_1_complete__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+machine.\+Complete\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=219pt]{classstate__machine_1_1_complete__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_complete_aaa07a99c685f1fdb50c9264799489afb}\label{classstate__machine_1_1_complete_aaa07a99c685f1fdb50c9264799489afb}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_complete_a209b3315310db68239d2ceebb247914c}\label{classstate__machine_1_1_complete_a209b3315310db68239d2ceebb247914c}} 
+def {\bfseries execute} (self, userdata)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class \mbox{\hyperlink{classstate__machine_1_1_complete}{Complete}} of the state\+\_\+machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This class is executed everytime the robot finish to explore the current room. In this class the completeness of the hypothesis collected until that moment is checked. Of course, the already checked hypotheses, are no longer taken in exam and the code is structured to handle multiple complete hypotheses at one time, since it can happen. If there is at least one new complete hypothesis, then the robot should then check the consistency of that hypothesis, if there are not the robot goes to another room in order to collect more hints to try to form a complete hypothesis. There are two outcomes\+:
+\begin{DoxyItemize}
+\item consistency, if the robot in that room find at least a complete hypothesis
+\item motion, if there are not new complete hypotheses. ~\newline
+ 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\mbox{\hyperlink{state__machine_8py}{state\+\_\+machine.\+py}}\end{DoxyCompactItemize}

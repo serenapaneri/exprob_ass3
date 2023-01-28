@@ -1,5 +1,39 @@
 #! /usr/bin/env python2
 
+## @package exprob_ass3
+#
+# \file hints.py
+# \brief script that implements the hints reciever of the game.
+#
+# \author Serena Paneri
+# \version 1.0
+# \date 28/01/2023
+# \details
+#
+# Subscribes to: <BR>
+#     /aruco_marker_publisher/ID
+#
+# Publishes to: <BR>
+#     None
+#
+# Serivces: <BR>
+#     comm
+#     room_ID
+#
+# Client Services: <BR>
+#     armor_interface_srv
+#     /oracle_hint
+#
+# Action Services: <BR>
+#     None
+#
+# Description: <BR>
+#     In this node is implemented the hints reciever of the cluedo game. In particular, when
+#     the state_machine commands to start recieving hints the hints are first by selecting the
+#     not malformed ones and those are then uploaded in the ontology. The malformed ones are
+#     simply discarded. In the meanwhile the IDs of that hints recieved are stored and sent to 
+#     the state machine.
+
 import rospy
 from armor_msgs.srv import *
 from armor_msgs.msg import * 
@@ -23,7 +57,14 @@ start = False
 IDs = [0]
 room_IDs = []
 
- 
+
+##
+# \brief Callback function of the comm service.
+# \param: req, CommandRequest
+# \return: start
+#
+# This function recieves the command from the client in the state_machine node. When the client commands to 
+# start then the start variable is set to True and when it commands to stop, the start variable is set to false.
 def com(req):
 
     global start
@@ -33,7 +74,13 @@ def com(req):
         start = False
     return start
     
-    
+
+##
+# \brief Callback function of the RoomID service.
+# \param: req, RoomIDRequest
+# \return: res, RoomIDResponse
+#
+# This function simply sends the ID found within a room to the state_machine node.    
 def RoomID_handle(req):
     global room_IDs
     res = RoomIDResponse()
@@ -41,6 +88,12 @@ def RoomID_handle(req):
     return res
 
 
+##
+# \brief Callback function of the subcriber to aruco_marker_publisher/ID
+# \param: data
+# \return: IDs
+#
+# This function collect the ID of the aruco marker that have been detected. 
 def id_callback(data):
     
     global IDs
@@ -142,6 +195,17 @@ def apply_():
     res = msg.armor_response
             
 
+##
+# \brief Main function of the hints node.
+# \param: None
+# \return: None
+#
+# In the main function all the service comm and roomID are implemented as well as the clients to
+# ARMOR and oracle_hint. Moreover there is also the subscriber to the aruco_marker_publisher. 
+# In this node when the state_machine commands to start recieving hints the hints are first
+# filtered by the fact of being malformed or not, and if they are not they are uploaded in the
+# ontology. In the meanwhile the IDs of that hints recieved are stored and sent to the state 
+# machine.
 def main():
 
     global hint_client, ID_sub_, comm_srv, roomid_srv, IDs, room_IDs, armor_interface
@@ -164,12 +228,15 @@ def main():
     rate = rospy.Rate(5)
     while not rospy.is_shutdown():
     
+        # if the state machine command to start
         if start == True:
+            # retrieving the last hint collected
             hints = hint_client(IDs[-1])
             ID_ = hints.oracle_hint.ID
             key = hints.oracle_hint.key
             value = hints.oracle_hint.value
         
+            # if the hint is a malformed hint
             if key == '' or value == '' or key == 'when' or value == '-1':
                 print('Malformed hint, the robot will discard this')
             # instead if the hint is not a malformed one
@@ -186,7 +253,7 @@ def main():
                     else:
                         room_IDs.append(ID_)     
             rate.sleep()
-                        
+        # if the start machine command to stop               
         elif start == False:
             room_IDs.clear()
             rate.sleep()

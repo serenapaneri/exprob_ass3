@@ -1,0 +1,54 @@
+\hypertarget{classstate__machine_1_1_start_game}{}\doxysection{state\+\_\+machine.\+Start\+Game Class Reference}
+\label{classstate__machine_1_1_start_game}\index{state\_machine.StartGame@{state\_machine.StartGame}}
+
+
+Class \mbox{\hyperlink{classstate__machine_1_1_start_game}{Start\+Game}} of the state\+\_\+machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+machine.\+Start\+Game\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=224pt]{classstate__machine_1_1_start_game__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+machine.\+Start\+Game\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=224pt]{classstate__machine_1_1_start_game__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_start_game_adbc887edf574923e80f276d2c29f4ff3}\label{classstate__machine_1_1_start_game_adbc887edf574923e80f276d2c29f4ff3}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_start_game_a8d481a4d1cb0cae5a58b6da28853e824}\label{classstate__machine_1_1_start_game_a8d481a4d1cb0cae5a58b6da28853e824}} 
+def {\bfseries execute} (self, userdata)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class \mbox{\hyperlink{classstate__machine_1_1_start_game}{Start\+Game}} of the state\+\_\+machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This class should initialized all the things needed to start the investigation of the cluedo game. Here the robot assumes the default position, thanks to moveit, the ontology is loaded, all the individuals of the game are uploaded, then disjoint from each other and feed to the reasoner. Then the rooms of the game are randomized. Here there is only one outcome that is motion, in order to make the robot go to the various room, searching for hints. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\mbox{\hyperlink{state__machine_8py}{state\+\_\+machine.\+py}}\end{DoxyCompactItemize}

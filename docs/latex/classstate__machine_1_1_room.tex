@@ -1,0 +1,59 @@
+\hypertarget{classstate__machine_1_1_room}{}\doxysection{state\+\_\+machine.\+Room Class Reference}
+\label{classstate__machine_1_1_room}\index{state\_machine.Room@{state\_machine.Room}}
+
+
+Class \mbox{\hyperlink{classstate__machine_1_1_room}{Room}} of the state\+\_\+machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+machine.\+Room\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=200pt]{classstate__machine_1_1_room__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+machine.\+Room\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=200pt]{classstate__machine_1_1_room__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_room_a5412f5d2b65aec63732d50defbc4765d}\label{classstate__machine_1_1_room_a5412f5d2b65aec63732d50defbc4765d}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_room_a35e1b9a046ab609caa4a41a730902474}\label{classstate__machine_1_1_room_a35e1b9a046ab609caa4a41a730902474}} 
+def {\bfseries execute} (self, userdata)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class \mbox{\hyperlink{classstate__machine_1_1_room}{Room}} of the state\+\_\+machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+In this class the robot should collect the hints needed to form hypotheses. What it does is to make the robot assume the low\+\_\+detection position, implemented with moveit and then makes the robot rotate around its yaw angle, to make a quick scan of the room and be able to detect the aruco markers in order to retrieve the hints. There are two outcomes\+:
+\begin{DoxyItemize}
+\item complete, if the robot has already visited the two waypoints
+\item motion, if the robot visited just the first waypoint. ~\newline
+ 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\mbox{\hyperlink{state__machine_8py}{state\+\_\+machine.\+py}}\end{DoxyCompactItemize}

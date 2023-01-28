@@ -1,0 +1,59 @@
+\hypertarget{classstate__machine_1_1_motion}{}\doxysection{state\+\_\+machine.\+Motion Class Reference}
+\label{classstate__machine_1_1_motion}\index{state\_machine.Motion@{state\_machine.Motion}}
+
+
+Class \mbox{\hyperlink{classstate__machine_1_1_motion}{Motion}} of the state\+\_\+machine.  
+
+
+
+
+Inheritance diagram for state\+\_\+machine.\+Motion\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=205pt]{classstate__machine_1_1_motion__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for state\+\_\+machine.\+Motion\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=205pt]{classstate__machine_1_1_motion__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_motion_ace5d1576885a10b1778ea3c1a07f7c53}\label{classstate__machine_1_1_motion_ace5d1576885a10b1778ea3c1a07f7c53}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{classstate__machine_1_1_motion_adfa1555afd38a0b0e82a03462dde328e}\label{classstate__machine_1_1_motion_adfa1555afd38a0b0e82a03462dde328e}} 
+def {\bfseries execute} (self, userdata)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class \mbox{\hyperlink{classstate__machine_1_1_motion}{Motion}} of the state\+\_\+machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & None \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: None
+\end{DoxyReturn}
+This class should execute the movement of the robot between the various rooms of the cluedo game. If there are no new complete and consistent hypotheses, then the robot should keep going searching new hints in other rooms, and the movement of the robot is implemented thanks to the move\+\_\+base package. If, instead, there is actually a new complete and consistent hypothesis the robot can go to the oracle room, trying its guessing. There can be also the possibility that the robot never find the correct solution and, when there are no more rooms to be visited the game finish. So, there are three outcomes\+:
+\begin{DoxyItemize}
+\item enter room, if the robot is still collecting hints
+\item go\+\_\+oracle, if the hypothesis formulated is complete and consistent
+\item game\+\_\+finished, if there are no more rooms to visit. 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+scripts/\mbox{\hyperlink{state__machine_8py}{state\+\_\+machine.\+py}}\end{DoxyCompactItemize}

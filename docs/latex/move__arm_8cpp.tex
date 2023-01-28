@@ -1,0 +1,98 @@
+\hypertarget{move__arm_8cpp}{}\doxysection{src/move\+\_\+arm.cpp File Reference}
+\label{move__arm_8cpp}\index{src/move\_arm.cpp@{src/move\_arm.cpp}}
+
+
+this node implements the configuration poses of the robot.  
+
+
+{\ttfamily \#include $<$ros/ros.\+h$>$}\newline
+{\ttfamily \#include $<$moveit/move\+\_\+group\+\_\+interface/move\+\_\+group\+\_\+interface.\+h$>$}\newline
+{\ttfamily \#include $<$exprob\+\_\+ass3/\+Pose.\+h$>$}\newline
+Include dependency graph for move\+\_\+arm.\+cpp\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{move__arm_8cpp__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{move__arm_8cpp_a259de4b2ea6acc366159bf51453311aa}{pose\+\_\+handle}} (exprob\+\_\+ass3\+::\+Pose\+::\+Request \&req, exprob\+\_\+ass3\+::\+Pose\+::\+Response \&res)
+\begin{DoxyCompactList}\small\item\em Callback function of the arm\+\_\+pose service. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{move__arm_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\begin{DoxyCompactList}\small\item\em Main function of the move\+\_\+arm node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+this node implements the configuration poses of the robot. 
+
+\begin{DoxyAuthor}{Author}
+Serena Paneri 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+28/1/2023
+\end{DoxyDate}
+Subscribes to\+: ~\newline
+ None
+
+Publishes to\+: ~\newline
+ None
+
+Serivces\+: ~\newline
+ arm\+\_\+pose
+
+Client Services\+: ~\newline
+ None
+
+Action Client\+: ~\newline
+ None
+
+Description\+: ~\newline
+ In this node are implemented the poses that the robot can assume during the game that were previously implemeted thanks to the moveit setup assistant. Also a service is \hypertarget{move__arm_8cpp_autotoc_md0}{}\doxysubsection{implemented, in a way that the client could decides which pose the robot should assumed.}\label{move__arm_8cpp_autotoc_md0}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{move__arm_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{move__arm_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{move\_arm.cpp@{move\_arm.cpp}!main@{main}}
+\index{main@{main}!move\_arm.cpp@{move\_arm.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Main function of the move\+\_\+arm node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em None} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0
+\end{DoxyReturn}
+This is the main function of the move\+\_\+arm node in which the node is initialized and the arm\+\_\+pose service is implemented. \mbox{\Hypertarget{move__arm_8cpp_a259de4b2ea6acc366159bf51453311aa}\label{move__arm_8cpp_a259de4b2ea6acc366159bf51453311aa}} 
+\index{move\_arm.cpp@{move\_arm.cpp}!pose\_handle@{pose\_handle}}
+\index{pose\_handle@{pose\_handle}!move\_arm.cpp@{move\_arm.cpp}}
+\doxysubsubsection{\texorpdfstring{pose\_handle()}{pose\_handle()}}
+{\footnotesize\ttfamily bool pose\+\_\+handle (\begin{DoxyParamCaption}\item[{exprob\+\_\+ass3\+::\+Pose\+::\+Request \&}]{req,  }\item[{exprob\+\_\+ass3\+::\+Pose\+::\+Response \&}]{res }\end{DoxyParamCaption})}
+
+
+
+Callback function of the arm\+\_\+pose service. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em req,Pose\+Request} & \\
+\hline
+{\em res,Pose\+Response} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true
+\end{DoxyReturn}
+This function is the callback function of the arm\+\_\+pose service in which the robot can assumes two different poses that are the default one and the low\+\_\+detection one. This poses can be selected by the client taht in this case is the state machine. 
