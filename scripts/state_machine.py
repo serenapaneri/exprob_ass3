@@ -795,6 +795,7 @@ class OracleRoom(smach.State):
         indexes_guess = list_index(consistent_hypotheses, wrong_guess)
         
         guess.extend(consistent_hypotheses)
+        indexes_guess.sort(reverse = True)
         
          # removing the hypotheses that have already been checked
         if indexes_guess:
