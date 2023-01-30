@@ -45,8 +45,7 @@ With the component diagram it is possible to see the overall behavior and how th
 #### Python nodes
 There are two python nodes:
 
-- [**hints**](https://github.com/serenapaneri/exprob_ass3/tree/main/scripts/hints.py): In this node are handled the client of the ARMOR service, the hint subscriber, the complete service and the hypo_found service. 
-This node is in charge of menaging the flow of hints recieved when the state_machine command to start the process. This node also evaluates, and in this case discard those, if the hints recieved are malformed. In this case of course the hints will not be uploaded in the ontology either. In the meanwhile the IDs of that hints recieved are stored and sent to 
+- [**hints**](https://github.com/serenapaneri/exprob_ass3/tree/main/scripts/hints.py): This node is in charge of menaging the flow of hints recieved when the state_machine commands to start the process. This node also evaluates, and in this case discard those, if the hints recieved are malformed. In this case of course the hints will not be uploaded in the ontology either. In the meanwhile the IDs of that hints recieved are stored and sent to 
 the state machine.
 There is also the reasoner and the apply function, that are services provided by the ARMOR package, that allows to directly interact with the ontology, in order to apply changes and update the knowledge everytime a new hint is uploaded. 
 
@@ -54,7 +53,7 @@ There is also the reasoner and the apply function, that are services provided by
     - StartGame: This class should initialized all the things needed to start the investigation of the cluedo game. Here the robot assumes the default position, thanks to moveit, the ontology is loaded, all the individuals of the game are uploaded, then disjoint from each other and feed to the reasoner. Then the rooms of the game are randomized. Here there is only one outcome that is motion, in order to make the robot go to the various room, searching for hints.
     - Motion: This class should execute the movement of the robot between the various rooms of the cluedo game. If there are no new complete and consistent hypotheses, then the robot should keep going searching  new hints in other rooms, and the movement of the robot is implemented thanks to the move_base package. If, instead, there is actually a new complete and consistent hypothesis the robot can go to the oracle room, trying its guessing. There can be also the possibility that the robot never find the correct solution and, when there are no more rooms to be visited the game finish. So, there are three outcomes that are enter room, if the robot is still collecting hints, go_oracle, if the hypothesis formulated is complete and consistent, and game_finished, if there are no more rooms to visit. 
     - Room: In this class the robot should collect the hints needed to form hypotheses. What it does is to make the robot assume the low_detection position, implemented with moveit and then makes the robot rotate around its yaw angle, to make a quick scan of the room and be able to detect the aruco markers in order to retrieve the hints. So, there are two outcomes that are complete, if the robot has already visited the two waypoints, and motion, if the robot visited just the first waypoint.
-    - Complete: This class is executed everytime the robot finish to explore the current room. In this class the completeness of the hypothesis collected until that moment is checked. Of course, the already checked hypotheses, are no longer taken in exam and the code is structured to handle multiple complete hypotheses at one time, since it can happen. If there is at least one new complete hypothesis, then the robot should then check the consistency of that hypothesis, if there are not the robot goes to another room in order to collect more hints to try to form a complete hypothesis. So, there are two outcomes that are consistency, if the robot in that room find at least a complete hypothesis and motion, if there are not new complete hypotheses.  
+    - Complete: This class is executed everytime the robot finishes to explore the current room. In this class the completeness of the hypothesis collected until that moment is checked. Of course, the already checked hypotheses, are no longer taken in exam and the code is structured to handle multiple complete hypotheses at one time, since it can happen. If there is at least one new complete hypothesis, then the robot should then check the consistency of that hypothesis, if there are not the robot goes to another room in order to collect more hints to try to form a complete hypothesis. So, there are two outcomes that are consistency, if the robot in that room find at least a complete hypothesis and motion, if there are not new complete hypotheses.  
     - Consistent: This class is executed everytime a new complete hypothesis has been found. In this class the consistency of the hypothesis collected until that moment is checked.  Of course, the already checked hypotheses, are no longer taken in exam and the code is structured to handle multiple consistent hypotheses at one time, since it can happen. If there is at least one new consistent hypothesis, then the robot should go to the oracle trying its guessing. There is only one outcome that is motion, that allows to the robot to go to the oracle, if a new complete and consistent hypothesis is found, if it's not to go searching new hints. 
     - OracleRoom: This class is executed when the robot has collected all the hints that forms a complete and consistent hypothesis, and it tries its guess. This class should inform the robot if the hypothesis found is the winning one or not, and this is done thanks to the oracle service that checks the ID of the hypothesis of the robot with the winning one. If the hypothesis is correct then the game is finished. If it is not then the robot should restart searching for new hints and repeat all the process. Of course, the already checked hypotheses, are no longer taken in exam and the code is structured to handle multiple guesses at one time, since it can happen. Here we have two outcomes that are game_finished, if the hypothesis found is the correct one, and motion, if the hypothesis found is wrong.
 
@@ -79,7 +78,7 @@ In the state diagram are shown all the states in which the robot could be and mo
 
 ![Alt text](/images/temporal_diagram.png?raw=true)
 
-In the temporal diagram is possible to see how the other nodes are called and menage by the smach state machine. Indeed, at first in the state machine the arm_pose service is called to set the robot pose to the default one and then the ARMOR service is called in order to load the ontology, upload all the individuals, disjoint them and then start the reasoner. After that the move_base package is used to allow the robot to move within the simulation environment while producing a map of the environment. When the robot enteres in a room the arm_pose service is called again in order to set the low_detection pose of the robot. Then finally the robot can start detecting hints by starting the process in the hints node. To retrieve the hints the aruco marker are detected in order to know the ID associated to each of them and then this ID is converted into a real hint thanks to the /oracle_hint service. The hint node then send to the state machine the ID of the hint collected in the current room. After collecting those hints the state machine calls again the ARMOR service in order to query the completeness and the consistency of the hypohteses formed until that moment. If there are any complete and consisten hypotheses then the /oracle_solution service is called in order to verify if the ID of the current hypothesis coincides with the winning one.
+In the temporal diagram is possible to see how the other nodes are called and menage by the smach state machine. Indeed, at first in the state machine the arm_pose service is called to set the robot pose to the default one and then the ARMOR service is called in order to load the ontology, upload all the individuals, disjoint them and then start the reasoner. After that the move_base package is used to allow the robot to move within the simulation environment while producing a map of the environment. When the robot enteres in a room the arm_pose service is called again in order to set the low_detection pose of the robot. Then finally the robot can start detecting hints by starting the process in the hints node. To retrieve the hints the aruco marker are detected in order to know the ID associated to each of them and then this ID is converted into a real hint thanks to the /oracle_hint service. The hint node then send to the state machine the IDs of the hints collected in the current room. After collecting those hints the state machine calls again the ARMOR service in order to query the completeness and the consistency of the hypohteses formed until that moment. If there are any complete and consistent hypotheses then the /oracle_solution service is called in order to verify if the ID of the current hypothesis coincides with the winning one.
 
 
 ### Messages, Services and RosParameters
@@ -133,7 +132,7 @@ To install the package you first need to clone the package generated with the mo
 ```
   git clone -b moveit_exprob_ass3 https://github.com/serenapaneri/exprob_ass3.git
 ```
-You'll also need the aruco_ros package in the branch "aruco_ros", by typing in the terminal:
+You'll also need the aruco_ros package in the branch "arucoros", by typing in the terminal:
 ```
   git clone -b arucoros https://github.com/serenapaneri/exprob_ass3.git
 ```
@@ -156,8 +155,8 @@ Before executing the project you should install, if they are not already install
 - [**MOVEIT**](https://github.com/ros-planning/moveit)
 - [**ros_smach**](https://github.com/ros/executive_smach)
 - [**smach_viewer**](https://github.com/ros-visualization/executive_smach_visualization)
-- **move_base**
-- **gmapping**
+- [**move_base**](https://github.com/CarmineD8/planning)
+- [**gmapping**](https://github.com/CarmineD8/planning)
 
 ### Running procedure
 After you complete the step aforementioned, you can finally run the whole program by typing in the terminal:
@@ -264,14 +263,14 @@ The simulation environment was entirely provided by the Professor, as well as th
 ### System's features
 The whole implementation can be easily changed and this is possbile thanks to the modularity of the program, since each node has a stand alone implementation. 
 The fact that two cameras were added as well as an additional waypoint in each room, allows to collect almost all the aruco markers in each room.
-Moreover when the game is finished, the used can keep track af all the execution of the game by looking at the new ontology generated with inferences.
+Moreover when the game is finished, the user can keep track af all the execution of the game by looking at the new ontology generated with inferences.
 
 ### System's limitations
-A sistem limitation could be the fact that, even when an hypothesis has been classified as complete and consistent, and so the hints with the same ID that are no longer considered, they are in any case uploaded in the ontology. Doing that, when the game finished, after finding a complete and consistent hypohesis which is also the winning one, the other hypotheses previously evaluated that were maybe complete and consistent, but not the winning ones, result as inconsistent looking at the ontology with inferences.
+A sistem limitation could be the fact that an additional waypoint has been added in each room, in order to be sure that all the markers can be seen by the two cameras.
 Moreover, even though the parameters of move_base were correctly set, in particular the minimum height of the obstacles, sometimes happen that the robot get stuck for a few seconds in the marker that are placed on the floor, and those, as a consequence are shifted a little from the initial configuration.
 
 ### Possible technical improvements
-An improvemets could be adding additional OpenCV functionalities in order to better detect the aruco markers, that sometimes, due to the shadow of the simulation environment, are not correctly detected, and doing that maybe there will be no need to add an additional waypoint in each room. 
+An improvemets could be adding additional OpenCV functionalities in order to better detect the aruco markers, that sometimes, due to the shadow of the simulation environment, are not correctly detected, and doing that maybe there will be no need to add an additional waypoint in each room. Moreover a check could be added to be sure that within a room, all the 5 aruco markers are detected.
 
 ## Author and contact 
 Serena Paneri, 4506977
